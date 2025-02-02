@@ -6,11 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Context" />
-    <Folder Include="Migrations" />
-    <Folder Include="Messaging\" />
-    <Folder Include="Services\" />
-    <Folder Include="Persistence\" />
-    <Folder Include="Repositories" />
+    <Folder Include="UseCases" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,6 @@
-﻿namespace DoaMais.CrossCutting
-{
-    public class Class1
-    {
+﻿namespace DoaMais.CrossCutting;
 
-    }
+public class Class1
+{
+
 }
