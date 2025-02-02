@@ -9,8 +9,9 @@
     <Folder Include="DTOs" />
     <Folder Include="Interfaces" />
     <Folder Include="Commands\" />
+    <Folder Include="Validators\" />
     <Folder Include="Services\" />
     <Folder Include="Queries\" />
-    <Folder Include="UseCases" />
+    <Folder Include="Handlers\" />
   </ItemGroup>
 </Project>

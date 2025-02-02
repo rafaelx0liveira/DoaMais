@@ -6,11 +6,26 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Context" />
-    <Folder Include="Migrations" />
+	  <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
     <Folder Include="Messaging\" />
+    <Folder Include="Configurations\" />
     <Folder Include="Services\" />
     <Folder Include="Persistence\" />
     <Folder Include="Repositories" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DoaMais.Application\DoaMais.Application.csproj" />
+    <ProjectReference Include="..\DoaMais.Domain\DoaMais.Domain.csproj" />
   </ItemGroup>
 </Project>

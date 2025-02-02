@@ -6,6 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="DependencyInjection" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\DoaMais.Domain\DoaMais.Domain.csproj" />
+		<ProjectReference Include="..\DoaMais.Infrastructure\DoaMais.Infrastructure.csproj" />
+	</ItemGroup>
 </Project>
