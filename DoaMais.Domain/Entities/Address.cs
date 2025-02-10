@@ -13,7 +13,7 @@ namespace DoaMais.Domain.Entities
     {
         [Column("StreetAddress")]
         [StringLength(300)]
-        public string? StreetAddres { get; set; }
+        public string? StreetAddress { get; set; }
 
         [Column("City")]
         [StringLength(300)]

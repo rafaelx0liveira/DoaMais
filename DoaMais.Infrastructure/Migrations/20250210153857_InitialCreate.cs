@@ -15,8 +15,7 @@ namespace DoaMais.Infrastructure.Migrations
                 name: "Addresses",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StreetAddress = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     City = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     State = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
@@ -31,8 +30,7 @@ namespace DoaMais.Infrastructure.Migrations
                 name: "BloodStocks",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BloodType = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RHFactor = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     QuantityML = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
@@ -46,11 +44,10 @@ namespace DoaMais.Infrastructure.Migrations
                 name: "Donors",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AddressId = table.Column<long>(type: "bigint", nullable: true),
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -69,12 +66,32 @@ namespace DoaMais.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Employees",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Employees", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Employees_Addresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Donations",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DonorId = table.Column<long>(type: "bigint", nullable: false),
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DonorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DonationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     QuantityML = table.Column<int>(type: "int", nullable: false)
                 },
@@ -106,6 +123,24 @@ namespace DoaMais.Infrastructure.Migrations
                 column: "AddressId",
                 unique: true,
                 filter: "[AddressId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Donors_Email",
+                table: "Donors",
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_AddressId",
+                table: "Employees",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_Email",
+                table: "Employees",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -116,6 +151,9 @@ namespace DoaMais.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Donations");
+
+            migrationBuilder.DropTable(
+                name: "Employees");
 
             migrationBuilder.DropTable(
                 name: "Donors");

@@ -6,12 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="DTOs" />
-    <Folder Include="Interfaces" />
-    <Folder Include="Commands\" />
-    <Folder Include="Validators\" />
     <Folder Include="Services\" />
-    <Folder Include="Queries\" />
-    <Folder Include="Handlers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DoaMais.Domain\DoaMais.Domain.csproj" />
   </ItemGroup>
 </Project>

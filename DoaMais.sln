@@ -15,6 +15,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoaMais.Tests", "DoaMais.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoaMais.API", "DoaMais.API\DoaMais.API.csproj", "{2FED36B0-1FEE-4606-8CA6-FF8A021A043E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{BCDE812A-6878-4407-A464-BB7B76B3CB2B}"
+	ProjectSection(SolutionItems) = preProject
+		roadmap.md = roadmap.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -6,7 +6,7 @@ namespace DoaMais.Domain.Entities
     public class Donation : BaseEntity
     {
         [ForeignKey("Donor")]
-        public long DonorId { get; set; }
+        public Guid DonorId { get; set; }
 
         public virtual Donor Donor { get; set; }
 

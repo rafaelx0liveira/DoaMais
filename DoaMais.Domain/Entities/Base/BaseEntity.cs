@@ -12,6 +12,6 @@ namespace DoaMais.Domain.Entities.Base
     {
         [Key]
         [Column("id")]
-        public long Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

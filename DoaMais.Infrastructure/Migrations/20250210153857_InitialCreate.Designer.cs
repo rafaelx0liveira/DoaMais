@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoaMais.Infrastructure.Migrations
 {
     [DbContext(typeof(SQLServerContext))]
-    [Migration("20250202200035_InitialCreate")]
+    [Migration("20250210153857_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,12 +27,10 @@ namespace DoaMais.Infrastructure.Migrations
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Address", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("City")
                         .HasMaxLength(300)
@@ -49,7 +47,7 @@ namespace DoaMais.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("State");
 
-                    b.Property<string>("StreetAddres")
+                    b.Property<string>("StreetAddress")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("StreetAddress");
@@ -61,12 +59,10 @@ namespace DoaMais.Infrastructure.Migrations
 
             modelBuilder.Entity("DoaMais.Domain.Entities.BloodStock", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BloodType")
                         .IsRequired()
@@ -94,19 +90,17 @@ namespace DoaMais.Infrastructure.Migrations
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donation", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("DonationDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("DonationDate");
 
-                    b.Property<long>("DonorId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("DonorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("QuantityML")
                         .HasColumnType("int")
@@ -121,15 +115,13 @@ namespace DoaMais.Infrastructure.Migrations
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donor", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("AddressId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BloodType")
                         .IsRequired()
@@ -141,7 +133,7 @@ namespace DoaMais.Infrastructure.Migrations
                         .HasColumnName("DateOfBirth");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("Email");
 
                     b.Property<int>("Gender")
@@ -168,7 +160,52 @@ namespace DoaMais.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[AddressId] IS NOT NULL");
 
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
+
                     b.ToTable("Donors");
+                });
+
+            modelBuilder.Entity("DoaMais.Domain.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("Email");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("Name");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PasswordHash");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Role");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donation", b =>
@@ -188,6 +225,15 @@ namespace DoaMais.Infrastructure.Migrations
                         .WithOne()
                         .HasForeignKey("DoaMais.Domain.Entities.Donor", "AddressId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("DoaMais.Domain.Entities.Employee", b =>
+                {
+                    b.HasOne("DoaMais.Domain.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
                 });

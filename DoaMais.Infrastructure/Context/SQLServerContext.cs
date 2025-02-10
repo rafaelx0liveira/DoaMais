@@ -13,7 +13,7 @@ namespace DoaMais.Infrastructure.Context
         public DbSet<BloodStock> BloodStocks { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Donor> Donors { get; set; }
-
+        public DbSet<Employee> Employees { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuração de Enum para string
@@ -50,6 +50,10 @@ namespace DoaMais.Infrastructure.Context
                 .HasIndex(bs => new { bs.BloodType, bs.RHFactor })
                 .IsUnique();
 
+            modelBuilder.Entity<Donor>()
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
             // Garantindo que QuantityML seja >= 0
             modelBuilder.Entity<BloodStock>()
                 .Property(bs => bs.QuantityML)
@@ -69,6 +73,17 @@ namespace DoaMais.Infrastructure.Context
                 .WithOne()
                 .HasForeignKey<Donor>(d => d.AddressId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Employee>()
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Employee>()
+                .Property(d => d.Role)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (EmployeeRole)Enum.Parse(typeof(EmployeeRole), v)
+                );
 
             base.OnModelCreating(modelBuilder);
         }
