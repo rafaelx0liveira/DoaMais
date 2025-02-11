@@ -19,10 +19,9 @@ namespace DoaMais.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateEmployee([FromBody] EmployeeDTO employeeDTO)
+        public async Task<IActionResult> Post([FromBody] CreateEmployeeCommand request)
         {
-            var command = new CreateEmployeeCommand(employeeDTO);
-            var result = await _mediator.Send(command);
+            var result = await _mediator.Send(request);
 
             if(!result.IsSuccess) return BadRequest(result);
 
@@ -31,7 +30,7 @@ namespace DoaMais.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllEmployees()
+        public async Task<IActionResult> GetAll()
         {
             var employees = await _mediator.Send(new GetAllEmployeesQuery());
             return Ok(employees);

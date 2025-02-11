@@ -4,7 +4,7 @@ using MediatR;
 
 namespace DoaMais.Application.Queries.EmployeesQuerys.GetAllEmployeesQuery
 {
-    public class GetAllEmployeesQuery : IRequest<ResultViewModel<IEnumerable<EmployeeDTO>>>
+    public class GetAllEmployeesQuery : IRequest<ResultViewModel<IEnumerable<EmployeeViewModel>>>
     {
     }
 }

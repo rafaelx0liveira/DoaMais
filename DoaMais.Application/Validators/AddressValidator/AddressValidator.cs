@@ -1,10 +1,5 @@
 ﻿using DoaMais.Application.DTOs;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoaMais.Application.Validators.AddressValidator
 {
@@ -13,16 +8,16 @@ namespace DoaMais.Application.Validators.AddressValidator
         public AddressValidator()
         {
             RuleFor(x => x.StreetAddress)
-                .NotEmpty().WithMessage("Logradouro é obrigatório");
+                .NotEmpty().WithMessage("StreetAddress is required.");
 
             RuleFor(x => x.City)
-                .NotEmpty().WithMessage("Cidade é obrigatório");
+                .NotEmpty().WithMessage("City is required.");
 
             RuleFor(x => x.State)
-                .NotEmpty().WithMessage("Estado é obrigatório");
+                .NotEmpty().WithMessage("State is required.");
 
             RuleFor(x => x.PostalCode)
-                .NotEmpty().WithMessage("CEP é obrigatório");
+                .NotEmpty().WithMessage("Postal code is required.");
         }
     }
 }

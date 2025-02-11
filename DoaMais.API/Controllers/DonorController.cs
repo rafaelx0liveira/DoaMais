@@ -1,5 +1,6 @@
 ﻿using DoaMais.Application.Commands.DonorCommands.CreateDonorCommand;
 using DoaMais.Application.Queries.DonorsQuerys.GetAllDonorsQuery;
+using DoaMais.Application.Queries.DonorsQuerys.GetDonorByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,15 @@ namespace DoaMais.API.Controllers
         {
             var result = await _mediator.Send(createDonorCommand);
             if(!result.IsSuccess) return BadRequest(result.Message);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetDonorByIdQuery(id));
+            if (!result.IsSuccess) return BadRequest(result.Message);
             return Ok(result);
         }
 

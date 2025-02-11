@@ -1,21 +1,17 @@
-﻿using DoaMais.Application.DTOs;
-using DoaMais.Application.Models;
+﻿using DoaMais.Application.Models;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoaMais.Application.Commands.AuthCommands.LoginCommand
 {
     public class LoginCommand : IRequest<ResultViewModel<string>>
     {
-        public LoginDTO LoginDTO { get; }
+        public string Email { get; set; }
+        public string Password { get; set; }
 
-        public LoginCommand(LoginDTO loginDTO)
+        public LoginCommand(string email, string password)
         {
-            LoginDTO = loginDTO;
+            Email = email;
+            Password = password;
         }
 
     }

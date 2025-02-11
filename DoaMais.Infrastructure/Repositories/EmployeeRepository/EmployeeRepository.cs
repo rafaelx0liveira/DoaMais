@@ -9,7 +9,7 @@ namespace DoaMais.Infrastructure.Repositories.EmployeeRepository
     {
         private readonly SQLServerContext _context = SqlServerContext;
 
-        public async Task<Guid> AddAsync(Employee employee)
+        public async Task<Guid> AddEmployeeAsync(Employee employee)
         {
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
@@ -17,7 +17,7 @@ namespace DoaMais.Infrastructure.Repositories.EmployeeRepository
             return employee.Id;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync()
+        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
         {
             return await _context.Employees
                 .Include(d => d.Address)
@@ -25,12 +25,12 @@ namespace DoaMais.Infrastructure.Repositories.EmployeeRepository
                 .ToListAsync();
         }
 
-        public async Task<Employee> GetByEmailAsync(string email)
+        public async Task<Employee> GetEmployeeByEmailAsync(string email)
         {
             return await _context.Employees.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task<Employee> GetByIdAsync(Guid id)
+        public async Task<Employee> GetEmployeeByIdAsync(Guid id)
         {
             return await _context.Employees.FirstOrDefaultAsync(x => x.Id == id);
         }

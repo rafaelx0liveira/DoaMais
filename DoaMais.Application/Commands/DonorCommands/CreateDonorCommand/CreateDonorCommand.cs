@@ -8,32 +8,48 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
 {
     public class CreateDonorCommand : IRequest<ResultViewModel<Guid>>
     {
-        public CreateDonorCommand(DonorDTO donorDTO)
-        {
-            DonorDTO = donorDTO;
-        }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public Gender Gender { get; set; }
+        public decimal Weight { get; set; }
+        public BloodType BloodType { get; set; }
+        public RHFactor RhFactor { get; set; }
 
-        public DonorDTO DonorDTO { get; }
+        public AddressDTO Address { get; set; }
+
+
+        public CreateDonorCommand(string name, string email, DateTime dateOfBirth, Gender gender, decimal weight, BloodType bloodType, RHFactor rhFactor, AddressDTO address)
+        {
+            Name = name;
+            Email = email;
+            DateOfBirth = dateOfBirth;
+            Gender = gender;
+            Weight = weight;
+            BloodType = bloodType;
+            RhFactor = rhFactor;
+            Address = address;
+        }
 
         public Donor ToEntity()
         {
             var address = new Address
             {
-                StreetAddress = DonorDTO.Address.StreetAddress,
-                City = DonorDTO.Address.City,
-                State = DonorDTO.Address.State,
-                PostalCode = DonorDTO.Address.PostalCode
+                StreetAddress = Address.StreetAddress,
+                City = Address.City,
+                State = Address.State,
+                PostalCode = Address.PostalCode
             };
 
             return new Donor
             {
-                Name = DonorDTO.Name,
-                Email = DonorDTO.Email,
-                DateOfBirth = DonorDTO.DateOfBirth,
-                Gender = DonorDTO.Gender,
-                Weight = DonorDTO.Weight,
-                BloodType = DonorDTO.BloodType,
-                RHFactor = DonorDTO.RhFactor,
+                Name = Name,
+                Email = Email,
+                DateOfBirth = DateOfBirth,
+                Gender = Gender,
+                Weight = Weight,
+                BloodType = BloodType,
+                RHFactor = RhFactor,
                 Address = address
             };
         }

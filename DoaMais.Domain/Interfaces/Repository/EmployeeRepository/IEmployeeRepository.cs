@@ -9,10 +9,10 @@ namespace DoaMais.Domain.Interfaces.Repository.EmployeeRepository
 {
     public interface IEmployeeRepository
     {
-        Task<Employee> GetByEmailAsync(string email);
-        Task<Employee> GetByIdAsync(Guid id);
-        Task<IEnumerable<Employee>> GetAllAsync();
-        Task<Guid> AddAsync(Employee employee);
+        Task<Employee> GetEmployeeByEmailAsync(string email);
+        Task<Employee> GetEmployeeByIdAsync(Guid id);
+        Task<IEnumerable<Employee>> GetAllEmployeesAsync();
+        Task<Guid> AddEmployeeAsync(Employee employee);
         Task<bool> EmployeeExists(string email);
     }
 }

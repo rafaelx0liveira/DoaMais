@@ -10,9 +10,15 @@ using DoaMais.Infrastructure.Persistence;
 using DoaMais.Infrastructure.Repositories.AddressRepository;
 using DoaMais.Infrastructure.Repositories.DonorRepository;
 using DoaMais.Infrastructure.Repositories.EmployeeRepository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using FluentValidation;
+using DoaMais.Application.Validators.LoginValidator;
+using DoaMais.Application.Validators.EmployeeValidator;
+using DoaMais.Application.Commands.DonorCommands.CreateDonorCommand;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -38,11 +44,16 @@ namespace DoaMais.CrossCutting.DependencyInjection
             services.AddScoped<ITokenService, TokenService>();
 
             // Registrando o MediatR para os Handlers dos Commands/Queries
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateDonorCommandHandler).Assembly));
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateDonorCommandHandler).Assembly));
+
+            // Registrando FluentValidation e encontrando automaticamente os Validators
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             return services;
         }
     }
+
 }
 
 

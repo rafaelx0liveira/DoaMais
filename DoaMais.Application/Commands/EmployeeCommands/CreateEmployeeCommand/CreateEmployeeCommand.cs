@@ -1,34 +1,43 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
 using DoaMais.Domain.Entities;
+using DoaMais.Domain.Entities.Enums;
 using MediatR;
 
 namespace DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand
 {
     public class CreateEmployeeCommand : IRequest<ResultViewModel<Guid>>
     {
-        public EmployeeDTO EmployeeDTO { get; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public EmployeeRole Role { get; set; }
+        public AddressDTO Address { get; set; }
 
-        public CreateEmployeeCommand(EmployeeDTO employeeDTO)
+        public CreateEmployeeCommand(string name, string email, string password, EmployeeRole role, AddressDTO address)
         {
-            EmployeeDTO = employeeDTO;
+            Name = name;
+            Email = email;
+            Password = password;
+            Role = role;
+            Address = address;
         }
 
         public Employee ToEntity()
         {
             var address = new Address
             {
-                StreetAddress = EmployeeDTO.Address.StreetAddress,
-                City = EmployeeDTO.Address.City,
-                State = EmployeeDTO.Address.State,
-                PostalCode = EmployeeDTO.Address.PostalCode
+                StreetAddress = Address.StreetAddress,
+                City = Address.City,
+                State = Address.State,
+                PostalCode = Address.PostalCode
             };
 
             return new Employee
             {
-                Name = EmployeeDTO.Name,
-                Email = EmployeeDTO.Email,
-                Role = EmployeeDTO.Role,
+                Name = Name,
+                Email = Email,
+                Role = Role,
                 Address = address,
             };
         }

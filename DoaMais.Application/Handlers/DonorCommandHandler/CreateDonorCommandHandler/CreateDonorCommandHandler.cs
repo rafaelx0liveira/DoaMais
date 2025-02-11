@@ -15,11 +15,11 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
         {
             try
             {
-                var donorExists = await _unitOfWork.Donors.DonorExistsAsync(request.DonorDTO.Email);
+                var donorExists = await _unitOfWork.Donors.DonorExistsAsync(request.Email);
 
                 if (donorExists) return ResultViewModel<Guid>.Error("Donor with this email already exists");
 
-                var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.DonorDTO.Address.PostalCode);
+                var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.Address.PostalCode);
 
                 Address address;
                 if (existingAddress != null)
@@ -30,10 +30,10 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
                 {
                     address = new Address
                     {
-                        StreetAddress = request.DonorDTO.Address.StreetAddress,
-                        City = request.DonorDTO.Address.City,
-                        State = request.DonorDTO.Address.State,
-                        PostalCode = request.DonorDTO.Address.PostalCode
+                        StreetAddress = request.Address.StreetAddress,
+                        City = request.Address.City,
+                        State = request.Address.State,
+                        PostalCode = request.Address.PostalCode
                     };
 
                     await _unitOfWork.Address.AddAddressAsync(address);
@@ -41,13 +41,13 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
 
                 var donor = new Donor
                 {
-                    Name = request.DonorDTO.Name,
-                    Email = request.DonorDTO.Email,
-                    DateOfBirth = request.DonorDTO.DateOfBirth,
-                    Gender = request.DonorDTO.Gender,
-                    Weight = request.DonorDTO.Weight,
-                    BloodType = request.DonorDTO.BloodType,
-                    RHFactor = request.DonorDTO.RhFactor,
+                    Name = request.Name,
+                    Email = request.Email,
+                    DateOfBirth = request.DateOfBirth,
+                    Gender = request.Gender,
+                    Weight = request.Weight,
+                    BloodType = request.BloodType,
+                    RHFactor = request.RhFactor,
                     AddressId = address.Id,
                     Address = null
                 };

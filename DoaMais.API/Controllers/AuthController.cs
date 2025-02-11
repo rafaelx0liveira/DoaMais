@@ -1,7 +1,5 @@
 ﻿using DoaMais.Application.Commands.AuthCommands.LoginCommand;
-using DoaMais.Application.DTOs;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoaMais.API.Controllers
@@ -17,10 +15,9 @@ namespace DoaMais.API.Controllers
         private readonly IMediator _mediator = mediator;
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+        public async Task<IActionResult> Login([FromBody] LoginCommand request)
         {
-            var command = new LoginCommand(loginDTO);
-            var result = await _mediator.Send(command);
+            var result = await _mediator.Send(request);
 
             if (!result.IsSuccess)
                 return Unauthorized(result);

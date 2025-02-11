@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DoaMais.Application.Queries.DonorsQuerys.GetAllDonorsQuery
 {
-    public class GetAllDonorsQuery : IRequest<ResultViewModel<IEnumerable<DonorDTO>>>
+    public class GetAllDonorsQuery : IRequest<ResultViewModel<IEnumerable<DonorViewModel>>>
     {
     }
 }

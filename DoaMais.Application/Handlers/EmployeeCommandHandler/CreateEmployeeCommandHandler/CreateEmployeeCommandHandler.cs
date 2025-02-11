@@ -14,12 +14,12 @@ namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeComm
         {
             try
             {
-                var employeeExists = await _unitOfWork.Employee.EmployeeExists(request.EmployeeDTO.Email);
+                var employeeExists = await _unitOfWork.Employee.EmployeeExists(request.Email);
 
                 if (employeeExists)
-                    return ResultViewModel<Guid>.Error($"Employee with email {request.EmployeeDTO.Email} already exists");
+                    return ResultViewModel<Guid>.Error($"Employee with email {request.Email} already exists");
 
-                var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.EmployeeDTO.Address.PostalCode);
+                var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.Address.PostalCode);
 
                 Address address;
                 if (existingAddress != null)
@@ -30,10 +30,10 @@ namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeComm
                 {
                     address = new Address
                     {
-                        StreetAddress = request.EmployeeDTO.Address.StreetAddress,
-                        City = request.EmployeeDTO.Address.City,
-                        State = request.EmployeeDTO.Address.State,
-                        PostalCode = request.EmployeeDTO.Address.PostalCode
+                        StreetAddress = request.Address.StreetAddress,
+                        City = request.Address.City,
+                        State = request.Address.State,
+                        PostalCode = request.Address.PostalCode
                     };
 
                     await _unitOfWork.Address.AddAddressAsync(address);
@@ -41,15 +41,15 @@ namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeComm
 
                 var employee = new Employee
                 {
-                    Name = request.EmployeeDTO.Name,
-                    Email = request.EmployeeDTO.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.EmployeeDTO.Password),
-                    Role = request.EmployeeDTO.Role,
+                    Name = request.Name,
+                    Email = request.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Role = request.Role,
                     AddressId = address.Id, 
                     Address = null 
                 };
 
-                await _unitOfWork.Employee.AddAsync(employee);
+                await _unitOfWork.Employee.AddEmployeeAsync(employee);
 
                 return ResultViewModel<Guid>.Success(employee.Id);
             }
