@@ -1,11 +1,6 @@
 ﻿using DoaMais.Domain.Entities.Base;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DoaMais.Domain.Entities
 {
@@ -26,5 +21,8 @@ namespace DoaMais.Domain.Entities
         [Column("PostalCode")]
         [StringLength(50)]
         public string? PostalCode { get; set; }
+
+        public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        public virtual ICollection<Donor> Donors { get; set; } = new List<Donor>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
-using DoaMais.Application.QueriesAndhandlers.GetAllEmployeesQuery;
+using DoaMais.Application.Queries.EmployeesQuerys.GetAllEmployeesQuery;
 using DoaMais.Domain.Interfaces.UnityOfWork;
 using MediatR;
 
@@ -19,7 +19,7 @@ namespace DoaMais.Application.Handlers.EmployeeQueryHandler.GetAllEmployeeQueryH
                 Name = x.Name,
                 Email = x.Email,
                 Role = x.Role,
-                Address = new AddressDTO()
+                Address = new AddressDTO
                 {
                     StreetAddress = x.Address.StreetAddress,
                     City = x.Address.City,

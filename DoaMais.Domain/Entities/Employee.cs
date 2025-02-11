@@ -19,12 +19,12 @@ namespace DoaMais.Domain.Entities
         public string PasswordHash { get; set; } 
 
         [Column("Role")]
-        public EmployeeRole Role { get; set; } 
+        public EmployeeRole Role { get; set; }
 
         [ForeignKey("Address")]
-        public Guid? AddressId { get; set; }
+        public Guid AddressId { get; set; }
 
-        public virtual Address? Address { get; set; }
+        public virtual Address Address { get; set; }
+
     }
-
 }

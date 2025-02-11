@@ -1,5 +1,6 @@
 ﻿using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
 using DoaMais.Application.Models;
+using DoaMais.Domain.Entities;
 using DoaMais.Domain.Interfaces.UnityOfWork;
 using MediatR;
 
@@ -15,10 +16,38 @@ namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeComm
             {
                 var employeeExists = await _unitOfWork.Employee.EmployeeExists(request.EmployeeDTO.Email);
 
-                if (employeeExists) return ResultViewModel<Guid>.Error($"Employee with email {request.EmployeeDTO.Email} already exists");
+                if (employeeExists)
+                    return ResultViewModel<Guid>.Error($"Employee with email {request.EmployeeDTO.Email} already exists");
 
-                var employee = request.ToEntity();
-                employee.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.EmployeeDTO.Password);
+                var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.EmployeeDTO.Address.PostalCode);
+
+                Address address;
+                if (existingAddress != null)
+                {
+                    address = existingAddress;
+                }
+                else
+                {
+                    address = new Address
+                    {
+                        StreetAddress = request.EmployeeDTO.Address.StreetAddress,
+                        City = request.EmployeeDTO.Address.City,
+                        State = request.EmployeeDTO.Address.State,
+                        PostalCode = request.EmployeeDTO.Address.PostalCode
+                    };
+
+                    await _unitOfWork.Address.AddAddressAsync(address);
+                }
+
+                var employee = new Employee
+                {
+                    Name = request.EmployeeDTO.Name,
+                    Email = request.EmployeeDTO.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.EmployeeDTO.Password),
+                    Role = request.EmployeeDTO.Role,
+                    AddressId = address.Id, 
+                    Address = null 
+                };
 
                 await _unitOfWork.Employee.AddAsync(employee);
 
@@ -26,8 +55,9 @@ namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeComm
             }
             catch (Exception ex)
             {
-                return ResultViewModel<Guid>.Error($"One or more errors occurred:{ex.Message}");
+                return ResultViewModel<Guid>.Error($"One or more errors occurred: {ex.Message}");
             }
         }
+
     }
 }

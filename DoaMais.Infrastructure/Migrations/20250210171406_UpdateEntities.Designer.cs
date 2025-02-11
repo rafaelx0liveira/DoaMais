@@ -4,6 +4,7 @@ using DoaMais.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoaMais.Infrastructure.Migrations
 {
     [DbContext(typeof(SQLServerContext))]
-    partial class SQLServerContextModelSnapshot : ModelSnapshot
+    [Migration("20250210171406_UpdateEntities")]
+    partial class UpdateEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,9 +136,8 @@ namespace DoaMais.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("Email");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                    b.Property<int>("Gender")
+                        .HasColumnType("int")
                         .HasColumnName("Gender");
 
                     b.Property<string>("Name")
@@ -154,7 +156,8 @@ namespace DoaMais.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex("AddressId")
+                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique()
@@ -209,7 +212,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.HasOne("DoaMais.Domain.Entities.Donor", "Donor")
                         .WithMany("Donations")
                         .HasForeignKey("DonorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Donor");
@@ -218,9 +221,9 @@ namespace DoaMais.Infrastructure.Migrations
             modelBuilder.Entity("DoaMais.Domain.Entities.Donor", b =>
                 {
                     b.HasOne("DoaMais.Domain.Entities.Address", "Address")
-                        .WithMany("Donors")
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne()
+                        .HasForeignKey("DoaMais.Domain.Entities.Donor", "AddressId")
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("Address");
@@ -229,19 +232,12 @@ namespace DoaMais.Infrastructure.Migrations
             modelBuilder.Entity("DoaMais.Domain.Entities.Employee", b =>
                 {
                     b.HasOne("DoaMais.Domain.Entities.Address", "Address")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("DoaMais.Domain.Entities.Address", b =>
-                {
-                    b.Navigation("Donors");
-
-                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donor", b =>

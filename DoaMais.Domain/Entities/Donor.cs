@@ -8,9 +8,9 @@ namespace DoaMais.Domain.Entities
     public class Donor : BaseEntity
     {
         [ForeignKey("Address")]
-        public Guid? AddressId { get; set; }
+        public Guid AddressId { get; set; }
 
-        public virtual Address? Address { get; set; }
+        public virtual Address Address { get; set; }
 
         [Column("Name")]
         [StringLength(200)]

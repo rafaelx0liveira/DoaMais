@@ -30,10 +30,10 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
                 Name = DonorDTO.Name,
                 Email = DonorDTO.Email,
                 DateOfBirth = DonorDTO.DateOfBirth,
-                Gender = Enum.Parse<Gender>(DonorDTO.Gender),
-                Weight = (decimal)DonorDTO.Weight,
-                BloodType = Enum.Parse<BloodType>(DonorDTO.BloodType),
-                RHFactor = Enum.Parse<RHFactor>(DonorDTO.RhFactor),
+                Gender = DonorDTO.Gender,
+                Weight = DonorDTO.Weight,
+                BloodType = DonorDTO.BloodType,
+                RHFactor = DonorDTO.RhFactor,
                 Address = address
             };
         }

@@ -1,4 +1,6 @@
 ﻿
+using DoaMais.Domain.Entities.Enums;
+
 namespace DoaMais.Application.DTOs
 {
     public class DonorDTO
@@ -6,10 +8,10 @@ namespace DoaMais.Application.DTOs
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string Gender { get; set; }
-        public double Weight { get; set; }
-        public string BloodType { get; set; }
-        public string RhFactor { get; set; }
+        public Gender Gender { get; set; }
+        public decimal Weight { get; set; }
+        public BloodType BloodType { get; set; }
+        public RHFactor RhFactor { get; set; }
 
         public AddressDTO Address { get; set; }
     }

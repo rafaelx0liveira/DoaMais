@@ -16,34 +16,25 @@ namespace DoaMais.Infrastructure.Context
         public DbSet<Employee> Employees { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configuração de Enum para string
-            modelBuilder.Entity<BloodStock>()
-                .Property(bs => bs.BloodType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
-                );
-
-            modelBuilder.Entity<BloodStock>()
-                .Property(bs => bs.RHFactor)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
-                );
-
+            // Relacionamento 1:N Address -> Donor
             modelBuilder.Entity<Donor>()
-                .Property(d => d.BloodType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
-                );
+                .HasOne(d => d.Address) // Donor has one address
+                .WithMany(a => a.Donors) // Address has many donors
+                .HasForeignKey(d => d.AddressId);
 
-            modelBuilder.Entity<Donor>()
-                .Property(d => d.RHFactor)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
-                );
+            // Relacionamento 1:N, Donor -> Donations
+            modelBuilder.Entity<Donation>()
+                .HasOne(d => d.Donor)
+                .WithMany(d => d.Donations)
+                .HasForeignKey(d => d.DonorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Relacionamento 1:N, Address -> Employee
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Address)
+                .WithMany(e => e.Employees)
+                .HasForeignKey(e => e.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Garantindo que BloodType e RHFactor sejam únicos em BloodStock
             modelBuilder.Entity<BloodStock>()
@@ -60,23 +51,45 @@ namespace DoaMais.Infrastructure.Context
                 .HasDefaultValue(0)
                 .IsRequired();
 
-            // Relacionamento 1:N, Donor -> Donations
-            modelBuilder.Entity<Donation>()
-                .HasOne(d => d.Donor)
-                .WithMany(d => d.Donations)
-                .HasForeignKey(d => d.DonorId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Relacionamento 1:1, Donor -> Address
-            modelBuilder.Entity<Donor>()
-                .HasOne(d => d.Address)
-                .WithOne()
-                .HasForeignKey<Donor>(d => d.AddressId)
-                .OnDelete(DeleteBehavior.SetNull);
-
             modelBuilder.Entity<Employee>()
                 .HasIndex(e => e.Email)
                 .IsUnique();
+
+            // Configuração de Enum para string
+            modelBuilder.Entity<Donor>()
+                .Property(d => d.BloodType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
+                );
+
+            modelBuilder.Entity<Donor>()
+                .Property(d => d.RHFactor)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
+                );
+
+            modelBuilder.Entity<BloodStock>()
+                .Property(bs => bs.BloodType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
+                );
+
+            modelBuilder.Entity<BloodStock>()
+                .Property(bs => bs.RHFactor)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
+                );
+
+            modelBuilder.Entity<Donor>()
+                .Property(d => d.Gender)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (Gender)Enum.Parse(typeof(Gender), v)
+                );
 
             modelBuilder.Entity<Employee>()
                 .Property(d => d.Role)

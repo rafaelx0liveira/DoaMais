@@ -4,6 +4,7 @@ using DoaMais.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoaMais.Infrastructure.Migrations
 {
     [DbContext(typeof(SQLServerContext))]
-    partial class SQLServerContextModelSnapshot : ModelSnapshot
+    [Migration("20250211010626_UpdateRelationships")]
+    partial class UpdateRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,7 +212,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.HasOne("DoaMais.Domain.Entities.Donor", "Donor")
                         .WithMany("Donations")
                         .HasForeignKey("DonorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Donor");
@@ -229,9 +232,9 @@ namespace DoaMais.Infrastructure.Migrations
             modelBuilder.Entity("DoaMais.Domain.Entities.Employee", b =>
                 {
                     b.HasOne("DoaMais.Domain.Entities.Address", "Address")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
@@ -240,8 +243,6 @@ namespace DoaMais.Infrastructure.Migrations
             modelBuilder.Entity("DoaMais.Domain.Entities.Address", b =>
                 {
                     b.Navigation("Donors");
-
-                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donor", b =>

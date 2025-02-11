@@ -1,12 +1,15 @@
 ﻿using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
 using DoaMais.Application.DTOs;
-using DoaMais.Application.QueriesAndhandlers.GetAllEmployeesQuery;
+using DoaMais.Application.Queries.EmployeesQuerys.GetAllEmployeesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoaMais.API.Controllers
 {
+    /// <summary>
+    /// Employee Controller
+    /// </summary>
     [Route("api/employee")]
     [ApiController]
     public class EmployeeController(IMediator mediator)
@@ -15,6 +18,7 @@ namespace DoaMais.API.Controllers
         private readonly IMediator _mediator = mediator;
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeDTO employeeDTO)
         {
             var command = new CreateEmployeeCommand(employeeDTO);
@@ -27,7 +31,7 @@ namespace DoaMais.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetEmployees()
+        public async Task<IActionResult> GetAllEmployees()
         {
             var employees = await _mediator.Send(new GetAllEmployeesQuery());
             return Ok(employees);

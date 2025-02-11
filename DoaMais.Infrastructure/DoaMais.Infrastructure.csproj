@@ -21,7 +21,6 @@
     <Folder Include="Messaging\" />
     <Folder Include="Configurations\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Repositories\AddressRepository\" />
     <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,11 @@ namespace DoaMais.Infrastructure.Repositories.DonorRepository
 
         public async Task<IEnumerable<Donor>> GetAllDonorsAsync()
         {
-            var donors = await _context.Donors.AsNoTracking().ToListAsync();
+            var donors = await _context.Donors
+                .Include(d => d.Address)
+                .Include(d => d.Donations)
+                .AsNoTracking()
+                .ToListAsync();
 
             return donors;
         }

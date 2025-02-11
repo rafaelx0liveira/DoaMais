@@ -1,4 +1,5 @@
-﻿using DoaMais.Domain.Interfaces.Repository.DonorRepository;
+﻿using DoaMais.Domain.Interfaces.Repository.AddressRepository;
+using DoaMais.Domain.Interfaces.Repository.DonorRepository;
 using DoaMais.Domain.Interfaces.Repository.EmployeeRepository;
 using DoaMais.Domain.Interfaces.UnityOfWork;
 using DoaMais.Infrastructure.Context;
@@ -9,16 +10,19 @@ namespace DoaMais.Infrastructure.Persistence
     public class UnitOfWork(
         SQLServerContext sqlServerContext, 
         IDonorRepository donorRepository,
-        IEmployeeRepository employeeRepository
+        IEmployeeRepository employeeRepository,
+        IAddressRepository addressRepository
         ): IUnitOfWork
     {
         private readonly SQLServerContext _sqlServerContext = sqlServerContext;
         private readonly IDonorRepository _donorRepository = donorRepository;
         private readonly IEmployeeRepository _employeeRepository = employeeRepository;
+        private readonly IAddressRepository _addressRepository = addressRepository;
         private IDbContextTransaction? _transaction;
 
         public IDonorRepository Donors => _donorRepository;
         public IEmployeeRepository Employee => _employeeRepository;
+        public IAddressRepository Address => _addressRepository;
 
         public async Task<int> CompleteAsync()
         {

@@ -19,7 +19,10 @@ namespace DoaMais.Infrastructure.Repositories.EmployeeRepository
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _context.Employees.AsNoTracking().ToListAsync();
+            return await _context.Employees
+                .Include(d => d.Address)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Employee> GetByEmailAsync(string email)
