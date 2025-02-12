@@ -1,8 +1,10 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
+using DoaMais.Application.Validators;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Entities.Enums;
 using MediatR;
+using System.Text.Json.Serialization;
 
 namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
 {
@@ -11,9 +13,15 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
+
+        [JsonConverter(typeof(InvalidEnumConverter<Gender>))]
         public Gender Gender { get; set; }
         public decimal Weight { get; set; }
+
+        [JsonConverter(typeof(InvalidEnumConverter<BloodType>))]
         public BloodType BloodType { get; set; }
+
+        [JsonConverter(typeof(InvalidEnumConverter<RHFactor>))]
         public RHFactor RhFactor { get; set; }
 
         public AddressDTO Address { get; set; }
