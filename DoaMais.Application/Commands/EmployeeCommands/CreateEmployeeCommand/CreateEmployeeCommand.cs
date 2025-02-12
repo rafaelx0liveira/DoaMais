@@ -1,8 +1,11 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
+using DoaMais.Application.Validators;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Entities.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand
 {
@@ -11,6 +14,8 @@ namespace DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+
+        [JsonConverter(typeof(InvalidEnumConverter<EmployeeRole>))]
         public EmployeeRole Role { get; set; }
         public AddressDTO Address { get; set; }
 

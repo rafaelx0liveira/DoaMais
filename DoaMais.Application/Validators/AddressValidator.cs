@@ -1,7 +1,7 @@
 ﻿using DoaMais.Application.DTOs;
 using FluentValidation;
 
-namespace DoaMais.Application.Validators.AddressValidator
+namespace DoaMais.Application.Validators
 {
     public class AddressValidator : AbstractValidator<AddressDTO>
     {

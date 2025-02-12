@@ -1,5 +1,4 @@
-﻿using DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHandler;
-using DoaMais.Application.Services.Auth;
+﻿using DoaMais.Application.Services.Auth;
 using DoaMais.Application.Services.Auth.Interface;
 using DoaMais.Domain.Interfaces.Repository.AddressRepository;
 using DoaMais.Domain.Interfaces.Repository.DonorRepository;
@@ -10,15 +9,12 @@ using DoaMais.Infrastructure.Persistence;
 using DoaMais.Infrastructure.Repositories.AddressRepository;
 using DoaMais.Infrastructure.Repositories.DonorRepository;
 using DoaMais.Infrastructure.Repositories.EmployeeRepository;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 using FluentValidation;
-using DoaMais.Application.Validators.LoginValidator;
-using DoaMais.Application.Validators.EmployeeValidator;
-using DoaMais.Application.Commands.DonorCommands.CreateDonorCommand;
+using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
+using FluentValidation.AspNetCore;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -28,6 +24,19 @@ namespace DoaMais.CrossCutting.DependencyInjection
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services
+                .AddDatabase(configuration)
+                .AddRepositories()
+                .AddUnitOfWork()
+                .AddServices()
+                .AddHandlers()
+                .AddValidation();
+
+            return services;
+        }
+
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
             var connectionString = configuration.GetConnectionString("SqlServer");
 
             services.AddDbContext<SQLServerContext>(opt =>
@@ -35,22 +44,39 @@ namespace DoaMais.CrossCutting.DependencyInjection
                 opt.UseSqlServer(connectionString);
             });
 
-            // Registrando Repositórios
+            return services;
+        }
+
+        private static IServiceCollection AddRepositories(this IServiceCollection services)
+        {
             services.AddScoped<IDonorRepository, DonorRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
 
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<ITokenService, TokenService>();
-
-            // Registrando o MediatR para os Handlers dos Commands/Queries
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateDonorCommandHandler).Assembly));
-
-            // Registrando FluentValidation e encontrando automaticamente os Validators
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
             return services;
+        }
+
+        private static IServiceCollection AddUnitOfWork(this IServiceCollection services)
+        {
+            return services.AddScoped<IUnitOfWork, UnitOfWork>();
+        }
+
+        private static IServiceCollection AddServices(this  IServiceCollection services)
+        {
+            return services.AddScoped<ITokenService, TokenService>();
+        }
+
+        private static IServiceCollection AddHandlers(this IServiceCollection services)
+        {
+            return services.AddMediatR(cfg => 
+                cfg.RegisterServicesFromAssemblyContaining<CreateEmployeeCommand>());
+        }
+
+        private static IServiceCollection AddValidation(this IServiceCollection services)
+        {
+            return services
+                .AddFluentValidationAutoValidation()
+                .AddValidatorsFromAssemblyContaining<CreateEmployeeCommand>();
         }
     }
 

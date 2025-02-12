@@ -1,8 +1,10 @@
 ﻿using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
 using DoaMais.Application.Models;
 using DoaMais.Domain.Entities;
+using DoaMais.Domain.Entities.Enums;
 using DoaMais.Domain.Interfaces.UnityOfWork;
 using MediatR;
+using System.Data;
 
 namespace DoaMais.Application.Handlers.EmployeeCommandHandler.CreateEmployeeCommandHandler
 {

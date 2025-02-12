@@ -2,11 +2,11 @@
 using DoaMais.Domain.Entities.Enums;
 using FluentValidation;
 
-namespace DoaMais.Application.Validators.DonorValidator
+namespace DoaMais.Application.Validators
 {
     public class DonorValidator : AbstractValidator<CreateDonorCommand>
     {
-        public DonorValidator() 
+        public DonorValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required.")
@@ -17,7 +17,8 @@ namespace DoaMais.Application.Validators.DonorValidator
                 .EmailAddress().WithMessage("Invalid email.");
 
             RuleFor(x => x.DateOfBirth)
-                .GreaterThan(DateTime.Today).WithMessage("Date of birth is required.");
+                .Must(d => d < DateTime.Now.AddYears(-18))
+                .WithMessage("Donor has to be over 18.");
 
             RuleFor(x => x.Gender)
                 .IsInEnum().WithMessage($"Invalid gender. Available options: {string.Join(", ", Enum.GetNames(typeof(Gender)))}.");

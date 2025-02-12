@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -18,7 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
-    {
+{
         Title = "DoaMais API",
         Version = "v1",
         Description = "API para gerenciamento de banco de sangue",
@@ -41,7 +43,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+{
         {
             new OpenApiSecurityScheme
             {
@@ -71,7 +73,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

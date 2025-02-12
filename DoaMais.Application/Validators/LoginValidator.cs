@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DoaMais.Application.Validators.LoginValidator
+namespace DoaMais.Application.Validators
 {
     public class LoginValidator : AbstractValidator<LoginCommand>
     {
-        public LoginValidator() 
+        public LoginValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")

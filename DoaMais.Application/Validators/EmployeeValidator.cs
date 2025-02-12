@@ -2,14 +2,14 @@
 using DoaMais.Domain.Entities.Enums;
 using FluentValidation;
 
-namespace DoaMais.Application.Validators.EmployeeValidator
+namespace DoaMais.Application.Validators
 {
     public class EmployeeValidator : AbstractValidator<CreateEmployeeCommand>
     {
-        public EmployeeValidator() 
+        public EmployeeValidator()
         {
             RuleFor(x => x.Name)
-                .NotNull()
+                .NotEmpty()
                 .WithMessage("Name is required.");
 
             RuleFor(x => x.Email)
@@ -22,7 +22,8 @@ namespace DoaMais.Application.Validators.EmployeeValidator
                 .WithMessage("Password is required.");
 
             RuleFor(x => x.Role)
-                .IsInEnum().WithMessage($"Invalid role. Available options: {string.Join(", ", Enum.GetNames(typeof(EmployeeRole)))}.");
+                .IsInEnum()
+                .WithMessage($"Invalid role. Allowed values: {string.Join(", ", Enum.GetNames(typeof(EmployeeRole)))}.");
         }
     }
 }
