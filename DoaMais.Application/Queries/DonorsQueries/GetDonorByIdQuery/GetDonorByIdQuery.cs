@@ -7,15 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DoaMais.Application.Queries.DonorsQuerys.GetDonorByIdQuery
+namespace DoaMais.Application.Queries.DonorsQueries.GetDonorByIdQuery
 {
     public class GetDonorByIdQuery : IRequest<ResultViewModel<DonorViewModel>>
     {
+        public Guid Id { get; set; }
+
         public GetDonorByIdQuery(Guid id)
         {
             Id = id;
         }
 
-        public Guid Id { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DoaMais.Application.Services.Auth.Interface
+namespace DoaMais.Application.Services.Interface
 {
     public interface ITokenService
     {

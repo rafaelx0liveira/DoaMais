@@ -1,0 +1,47 @@
+﻿using DoaMais.Application.Commands.DonationCommands.CreateDonationCommand;
+using DoaMais.Application.DTOs;
+using DoaMais.Application.Models;
+using DoaMais.Application.Services.DonorService;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
+using DoaMais.MessageBus.Interface;
+using MediatR;
+
+namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationCommandHandler
+{
+    public class CreateDonationCommandHandler(
+            IUnitOfWork unitOfWork,
+            IMessageBus messageBus
+        )
+        : IRequestHandler<CreateDonationCommand, ResultViewModel<Guid>>
+    {
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMessageBus _messageBus = messageBus;
+
+        public async Task<ResultViewModel<Guid>> Handle(CreateDonationCommand request, CancellationToken cancellationToken)
+        {
+            var donor = await _unitOfWork.Donors.GetDonorByIdAsync(request.DonorId);
+
+            if (donor == null) ResultViewModel<Guid>.Error($"Donor with Id {request.DonorId} was not found.");
+
+            var lastDonation = await _unitOfWork.Donation.GetLastDonationAsync(request.DonorId);
+
+            if (!DonorService.CanDonate(donor.DateOfBirth, donor.BiologicalSex, lastDonation?.DonationDate))
+                return ResultViewModel<Guid>.Error($"The donor with Id {donor.Id} cannot make donation");
+
+            var donation = request.ToEntity();
+
+            await _unitOfWork.Donation.AddDonationAsync(donation);
+            await _unitOfWork.CompleteAsync();
+
+            var donationEvent = new DonationRegisteredEvent(  
+                donation.DonorId,
+                donation.Donor.Email,
+                donation.Donor.BloodType,
+                donation.QuantityML);
+
+            await _messageBus.PublishMessageAsync(donationEvent);
+
+            return ResultViewModel<Guid>.Success(donation.Id);
+        }
+    }
+}

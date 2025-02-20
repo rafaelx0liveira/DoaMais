@@ -20,11 +20,11 @@ namespace DoaMais.Application.Validators
                 .Must(d => d < DateTime.Now.AddYears(-18))
                 .WithMessage("Donor has to be over 18.");
 
-            RuleFor(x => x.Gender)
-                .IsInEnum().WithMessage($"Invalid gender. Available options: {string.Join(", ", Enum.GetNames(typeof(Gender)))}.");
+            RuleFor(x => x.BiologicalSex)
+                .IsInEnum().WithMessage($"Invalid biological sex. Available options: {string.Join(", ", Enum.GetNames(typeof(BiologicalSex)))}.");
 
             RuleFor(x => x.Weight)
-                .GreaterThan(0).WithMessage("Weight must be greater than zero.");
+                .GreaterThan(50).WithMessage("Weight must be greater than 50.");
 
             RuleFor(x => x.BloodType)
                 .IsInEnum().WithMessage($"Invalid blood type. Available options: {string.Join(", ", Enum.GetNames(typeof(BloodType)))}.");

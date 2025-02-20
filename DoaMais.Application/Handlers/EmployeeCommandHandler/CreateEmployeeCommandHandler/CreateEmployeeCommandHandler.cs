@@ -2,7 +2,7 @@
 using DoaMais.Application.Models;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Entities.Enums;
-using DoaMais.Domain.Interfaces.UnityOfWork;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
 using MediatR;
 using System.Data;
 

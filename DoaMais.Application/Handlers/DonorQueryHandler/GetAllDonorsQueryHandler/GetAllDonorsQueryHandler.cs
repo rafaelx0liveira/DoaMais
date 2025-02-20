@@ -1,7 +1,7 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
-using DoaMais.Application.Queries.DonorsQuerys.GetAllDonorsQuery;
-using DoaMais.Domain.Interfaces.UnityOfWork;
+using DoaMais.Application.Queries.DonorsQueries.GetAllDonorsQuery;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
 using MediatR;
 
 namespace DoaMais.Application.Handlers.DonorQueryHandler.GetAllDonorsQueryHandler

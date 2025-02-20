@@ -14,8 +14,8 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
 
-        [JsonConverter(typeof(InvalidEnumConverter<Gender>))]
-        public Gender Gender { get; set; }
+        [JsonConverter(typeof(InvalidEnumConverter<BiologicalSex>))]
+        public BiologicalSex BiologicalSex { get; set; }
         public decimal Weight { get; set; }
 
         [JsonConverter(typeof(InvalidEnumConverter<BloodType>))]
@@ -27,12 +27,12 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
         public AddressDTO Address { get; set; }
 
 
-        public CreateDonorCommand(string name, string email, DateTime dateOfBirth, Gender gender, decimal weight, BloodType bloodType, RHFactor rhFactor, AddressDTO address)
+        public CreateDonorCommand(string name, string email, DateTime dateOfBirth, BiologicalSex biologicalSex, decimal weight, BloodType bloodType, RHFactor rhFactor, AddressDTO address)
         {
             Name = name;
             Email = email;
             DateOfBirth = dateOfBirth;
-            Gender = gender;
+            BiologicalSex = biologicalSex;
             Weight = weight;
             BloodType = bloodType;
             RhFactor = rhFactor;
@@ -54,7 +54,7 @@ namespace DoaMais.Application.Commands.DonorCommands.CreateDonorCommand
                 Name = Name,
                 Email = Email,
                 DateOfBirth = DateOfBirth,
-                Gender = Gender,
+                BiologicalSex = BiologicalSex,
                 Weight = Weight,
                 BloodType = BloodType,
                 RHFactor = RhFactor,

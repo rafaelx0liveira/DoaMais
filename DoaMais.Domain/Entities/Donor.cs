@@ -23,8 +23,8 @@ namespace DoaMais.Domain.Entities
         [Column("DateOfBirth")]
         public DateTime DateOfBirth { get; set; }
 
-        [Column("Gender")]
-        public Gender Gender { get; set; }
+        [Column("BiologicalSex")]
+        public BiologicalSex BiologicalSex { get; set; }
 
         [Column("Weight")]
         [Range(0, double.MaxValue)]

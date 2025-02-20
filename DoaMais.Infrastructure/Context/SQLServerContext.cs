@@ -85,10 +85,10 @@ namespace DoaMais.Infrastructure.Context
                 );
 
             modelBuilder.Entity<Donor>()
-                .Property(d => d.Gender)
+                .Property(d => d.BiologicalSex)
                 .HasConversion(
                     v => v.ToString(),
-                    v => (Gender)Enum.Parse(typeof(Gender), v)
+                    v => (BiologicalSex)Enum.Parse(typeof(BiologicalSex), v)
                 );
 
             modelBuilder.Entity<Employee>()

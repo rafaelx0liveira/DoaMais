@@ -120,6 +120,11 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BiologicalSex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("BiologicalSex");
+
                     b.Property<string>("BloodType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -132,11 +137,6 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("Email");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Gender");
 
                     b.Property<string>("Name")
                         .HasMaxLength(200)

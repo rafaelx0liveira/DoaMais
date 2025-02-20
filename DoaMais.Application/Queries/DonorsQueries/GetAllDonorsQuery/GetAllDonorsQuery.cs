@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DoaMais.Application.Queries.DonorsQuerys.GetAllDonorsQuery
+namespace DoaMais.Application.Queries.DonorsQueries.GetAllDonorsQuery
 {
     public class GetAllDonorsQuery : IRequest<ResultViewModel<IEnumerable<DonorViewModel>>>
     {

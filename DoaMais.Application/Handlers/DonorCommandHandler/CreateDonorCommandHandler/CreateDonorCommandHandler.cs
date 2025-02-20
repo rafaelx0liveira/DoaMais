@@ -1,7 +1,7 @@
 ﻿using DoaMais.Application.Commands.DonorCommands.CreateDonorCommand;
 using DoaMais.Application.Models;
 using DoaMais.Domain.Entities;
-using DoaMais.Domain.Interfaces.UnityOfWork;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
 using MediatR;
 
 namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHandler
@@ -44,7 +44,7 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
                     Name = request.Name,
                     Email = request.Email,
                     DateOfBirth = request.DateOfBirth,
-                    Gender = request.Gender,
+                    BiologicalSex = request.BiologicalSex,
                     Weight = request.Weight,
                     BloodType = request.BloodType,
                     RHFactor = request.RhFactor,
@@ -53,6 +53,7 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
                 };
 
                 await _unitOfWork.Donors.AddDonorAsync(donor);
+                await _unitOfWork.CompleteAsync();
 
                 return ResultViewModel<Guid>.Success(donor.Id);
             }

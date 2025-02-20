@@ -1,9 +1,6 @@
-﻿using DoaMais.Application.Services.Auth;
-using DoaMais.Application.Services.Auth.Interface;
-using DoaMais.Domain.Interfaces.Repository.AddressRepository;
+﻿using DoaMais.Domain.Interfaces.Repository.AddressRepository;
 using DoaMais.Domain.Interfaces.Repository.DonorRepository;
 using DoaMais.Domain.Interfaces.Repository.EmployeeRepository;
-using DoaMais.Domain.Interfaces.UnityOfWork;
 using DoaMais.Infrastructure.Context;
 using DoaMais.Infrastructure.Persistence;
 using DoaMais.Infrastructure.Repositories.AddressRepository;
@@ -15,6 +12,14 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
 using FluentValidation.AspNetCore;
+using DoaMais.Application.Services.Interface;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
+using DoaMais.Application.Services.AuthService;
+using DoaMais.Domain.Interfaces.Repository.DonationRepository;
+using DoaMais.Infrastructure.Repositories.DonationRepository;
+using DoaMais.MessageBus.Configuration;
+using DoaMais.MessageBus.Interface;
+using DoaMais.MessageBus;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -30,7 +35,8 @@ namespace DoaMais.CrossCutting.DependencyInjection
                 .AddUnitOfWork()
                 .AddServices()
                 .AddHandlers()
-                .AddValidation();
+                .AddValidation()
+                .AddRabbitMQ(configuration);
 
             return services;
         }
@@ -52,6 +58,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
             services.AddScoped<IDonorRepository, DonorRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IDonationRepository, DonationRepository>();
 
             return services;
         }
@@ -77,6 +84,19 @@ namespace DoaMais.CrossCutting.DependencyInjection
             return services
                 .AddFluentValidationAutoValidation()
                 .AddValidatorsFromAssemblyContaining<CreateEmployeeCommand>();
+        }
+
+        private static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Configuring options for RabbitMQ
+            services
+                .Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
+
+            // Registering RabbitMQMessageBus as a Singleton for the entire aplication
+            services
+                .AddSingleton<IMessageBus, RabbitMQMessageBus>();
+
+            return services;
         }
     }
 

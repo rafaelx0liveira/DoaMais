@@ -19,39 +19,35 @@ namespace DoaMais.Infrastructure.Repositories.DonorRepository
 
         public async Task UpdateDonorAsync(Donor donor)
         {
-            _context.Update(donor);
+            _context.Donors.Update(donor);
             await _context.SaveChangesAsync();
         }
 
         public async Task<Donor> GetDonorByEmailAsync(string email)
         {
-            var donor = await _context.Donors.FirstOrDefaultAsync(x => x.Email == email);
-            return donor;
+            return await _context.Donors.FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task<IEnumerable<Donor>> GetAllDonorsAsync()
         {
-            var donors = await _context.Donors
+            return await _context.Donors
                 .Include(d => d.Address)
                 .Include(d => d.Donations)
                 .AsNoTracking()
                 .ToListAsync();
-
-            return donors;
         }
 
         public async Task<Donor> GetDonorByIdAsync(Guid id)
         {
-            var donor = await _context.Donors.SingleOrDefaultAsync(x => x.Id == id);
-
-            return donor;
+            return await
+                _context.Donors
+                .Include(d => d.Address)
+                .SingleOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<bool> DonorExistsAsync(string email)
         {
-            var donorExists = await _context.Donors.AnyAsync(x => x.Email == email);
-
-            return donorExists;
+            return await _context.Donors.AnyAsync(x => x.Email == email);
         }
     }
 }

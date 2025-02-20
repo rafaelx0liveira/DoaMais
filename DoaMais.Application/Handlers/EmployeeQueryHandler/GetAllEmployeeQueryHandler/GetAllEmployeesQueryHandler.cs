@@ -1,7 +1,7 @@
 ﻿using DoaMais.Application.DTOs;
 using DoaMais.Application.Models;
-using DoaMais.Application.Queries.EmployeesQuerys.GetAllEmployeesQuery;
-using DoaMais.Domain.Interfaces.UnityOfWork;
+using DoaMais.Application.Queries.EmployeesQueries.GetAllEmployeesQuery;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
 using MediatR;
 
 namespace DoaMais.Application.Handlers.EmployeeQueryHandler.GetAllEmployeeQueryHandler

@@ -1,6 +1,5 @@
 ﻿using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
-using DoaMais.Application.DTOs;
-using DoaMais.Application.Queries.EmployeesQuerys.GetAllEmployeesQuery;
+using DoaMais.Application.Queries.EmployeesQueries.GetAllEmployeesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

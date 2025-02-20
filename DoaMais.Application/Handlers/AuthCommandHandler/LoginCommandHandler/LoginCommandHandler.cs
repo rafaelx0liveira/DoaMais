@@ -1,8 +1,8 @@
 ﻿using DoaMais.Application.Commands.AuthCommands.LoginCommand;
 using DoaMais.Application.Models;
-using DoaMais.Domain.Interfaces.UnityOfWork;
 using MediatR;
-using DoaMais.Application.Services.Auth.Interface;
+using DoaMais.Application.Services.Interface;
+using DoaMais.Domain.Interfaces.IUnitOfWork;
 
 
 namespace DoaMais.Application.Handlers.AuthCommandHandler.LoginCommandHandler
