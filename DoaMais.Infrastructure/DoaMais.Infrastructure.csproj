@@ -19,7 +19,6 @@
 	  </PackageReference>
 	  <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
     <Folder Include="Messaging\" />
-    <Folder Include="Configurations\" />
     <Folder Include="Migrations\" />
     <Folder Include="Services\" />
   </ItemGroup>

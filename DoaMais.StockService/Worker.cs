@@ -1,113 +1,83 @@
-using RabbitMQ.Client;
-using System.Text;
-using System.Text.Json;
-using RabbitMQ.Client.Events;
-using DoaMais.Application.DTOs;
+using DoaMais.StockService.Model;
+using DoaMais.StockService.Repository.Interface;
+using DoaMais.StockService.ValueObject;
+using DoaMais.MessageBus.Interface;
+
 namespace DoaMais.StockService
 {
     public class StockWorker : BackgroundService
     {
+        private readonly IMessageBus _messageBus;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<StockWorker> _logger;
         private readonly IConfiguration _configuration;
         private readonly string _queueName;
-        private readonly ConnectionFactory _factory;
-        private IConnection? _connection;
-        private IChannel? _channel; // Mudança para IChannel
 
-        public StockWorker(ILogger<StockWorker> logger, IConfiguration configuration)
+        public StockWorker(
+            IMessageBus messageBus,
+            IServiceScopeFactory scopeFactory,
+            ILogger<StockWorker> logger, 
+            IConfiguration configuration)
         {
+            _messageBus = messageBus;
+            _scopeFactory = scopeFactory;
             _logger = logger;
             _configuration = configuration;
-            _queueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("RabbitMQ queue name is missing.");
-
-            _factory = new ConnectionFactory
-            {
-                HostName = _configuration["RabbitMQ:HostName"] ?? throw new ArgumentNullException("RabbitMQ HostName is missing."),
-                UserName = _configuration["RabbitMQ:UserName"] ?? throw new ArgumentNullException("RabbitMQ UserName is missing."),
-                Password = _configuration["RabbitMQ:Password"] ?? throw new ArgumentNullException("RabbitMQ Password is missing."),
-            };
+            _queueName = _configuration["RabbitMQ:QueueName"] ?? throw new ArgumentNullException("QueueName não encontrado no appsettings");
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Iniciando StockWorker...");
 
-            _connection = await _factory.CreateConnectionAsync(cancellationToken: cancellationToken);
-
             await base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("StockService rodando e ouvindo RabbitMQ...");
+            _logger.LogInformation("StockWorker rodando e ouvindo RabbitMQ...");
 
-            if (_connection == null)
+            await _messageBus.ConsumeMessagesAsync<DonationRegisteredEvent>(_queueName, async (donationEvent) =>
             {
-                _logger.LogError("A conexão do RabbitMQ não foi inicializada.");
-                return;
-            }
-            _channel = await _connection.CreateChannelAsync(null, stoppingToken);
-
-            await _channel.QueueDeclareAsync(
-                queue: _queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null,
-                cancellationToken: stoppingToken
-            );
-
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.ReceivedAsync += async (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                var donationEvent = JsonSerializer.Deserialize<DonationRegisteredEvent>(message);
-
-                if (donationEvent != null)
-                {
-                    await ProcessDonation(donationEvent, stoppingToken);
-                }
-
-                await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
-            };
-
-            await _channel.BasicConsumeAsync(
-                queue: _queueName,
-                autoAck: false, // Confirmação manual de mensagens
-                consumer: consumer
-            );
+                await ProcessDonation(donationEvent, stoppingToken);
+            }, stoppingToken);
 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         private async Task ProcessDonation(DonationRegisteredEvent donationEvent, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"[StockService] Processando doação: {donationEvent.DonorId} - {donationEvent.Quantity}ml de {donationEvent.BloodType}");
+            _logger.LogInformation($"[StockService] Processando doação: {donationEvent.DonorId} - {donationEvent.Quantity}ml de {donationEvent.BloodType} - {donationEvent.RHFactor}");
 
-            // Simulando atualização de estoque
-            await Task.Delay(500, cancellationToken);
+            using var scope = _scopeFactory.CreateScope();
+            var stockRepository = scope.ServiceProvider.GetRequiredService<IBloodStockRepository>();
+
+            var stock = await stockRepository.GetBloodByRHAndTypeAsync(donationEvent.BloodType, donationEvent.RHFactor);
+            if (stock == null)
+            {
+                stock = new BloodStock
+                {
+                    BloodType = donationEvent.BloodType,
+                    QuantityML = donationEvent.Quantity
+                };
+                await stockRepository.AddBloodToStockAsync(stock);
+            }
+            else
+            {
+                stock.QuantityML += donationEvent.Quantity;
+                await stockRepository.UpdateQuantityFromStockAsync(stock);
+            }
+
+            //if (stock.QuantityML < 5) // Estoque crítico
+            //{
+            //    var lowStockAlert = new LowStockAlertEvent(donationEvent.BloodType, stock.Quantity);
+            //    var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
+            //    await messageBus.PublishMessageAsync(lowStockAlert, "low_stock_alert_queue", cancellationToken);
+            //}
 
             _logger.LogInformation("[StockService] Estoque atualizado com sucesso!");
-        }
-
-        public override async Task StopAsync(CancellationToken cancellationToken)
-        {
             _logger.LogInformation("Finalizando StockWorker...");
-
-            if (_channel != null)
-            {
-                await _channel.CloseAsync(cancellationToken);
-                await _channel.DisposeAsync();
-            }
-
-            if (_connection != null)
-            {
-                await _connection.CloseAsync(cancellationToken);
-                await _connection.DisposeAsync();
-            }
-
-            await base.StopAsync(cancellationToken);
         }
     }
+
 }

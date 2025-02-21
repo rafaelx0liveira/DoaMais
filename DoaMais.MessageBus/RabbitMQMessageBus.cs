@@ -2,6 +2,7 @@
 using DoaMais.MessageBus.Interface;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 
@@ -10,10 +11,10 @@ namespace DoaMais.MessageBus
     public class RabbitMQMessageBus : IMessageBus
     {
         private IConnection? _connection;
+        private IChannel? _channel;
         private readonly string _hostName;
         private readonly string _userName;
         private readonly string _password;
-        private readonly string _queueName;
 
         public RabbitMQMessageBus(IOptions<RabbitMQSettings> options)
         {
@@ -22,20 +23,19 @@ namespace DoaMais.MessageBus
             _hostName = settings.HostName ?? throw new ArgumentNullException(nameof(settings.HostName), "RabbitMQ HostName is missing");
             _userName = settings.UserName ?? throw new ArgumentNullException(nameof(settings.UserName), "RabbitMQ UserName is missing");
             _password = settings.Password ?? throw new ArgumentNullException(nameof(settings.Password), "RabbitMQ Password is missing");
-            _queueName = settings.QueueName ?? throw new ArgumentNullException(nameof(settings.QueueName), "RabbitMQ QueueName is missing");
         }
 
-        public async Task PublishMessageAsync<T>(T message)
+        public async Task PublishMessageAsync<T>(string queueName, T message)
         {
             if (!await ConnectionExistsAsync())
             {
                 throw new InvalidOperationException("Error connecting to RabbitMQ.");
             }
 
-            await using var channel = await _connection!.CreateChannelAsync();
+            _channel ??= await _connection!.CreateChannelAsync();
 
-            await channel.QueueDeclareAsync(
-                queue: _queueName,
+            await _channel.QueueDeclareAsync(
+                queue: queueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -43,10 +43,52 @@ namespace DoaMais.MessageBus
 
             byte[] body = GetMessageAsByteArray(message);
 
-            await channel.BasicPublishAsync(
+            await _channel.BasicPublishAsync(
                 exchange: "",
-                routingKey: _queueName,
+                routingKey: queueName,
                 body: body);
+        }
+
+        public async Task ConsumeMessagesAsync<T>(string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
+        {
+            if (!await ConnectionExistsAsync())
+            {
+                throw new InvalidOperationException("Error connecting to RabbitMQ.");
+            }
+
+            _channel ??= await _connection!.CreateChannelAsync();
+
+            await _channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                cancellationToken: cancellationToken
+            );
+
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.ReceivedAsync += async (model, ea) =>
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                var deserializedMessage = JsonSerializer.Deserialize<T>(message);
+
+                if (deserializedMessage != null)
+                {
+                    await messageHandler(deserializedMessage);
+                }
+
+                await _channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
+            };
+
+            await _channel.BasicConsumeAsync(
+                queue: queueName,
+                autoAck: false,
+                consumer: consumer
+            );
+
+            await Task.Delay(Timeout.Infinite, cancellationToken);
         }
 
         private byte[] GetMessageAsByteArray<T>(T message)

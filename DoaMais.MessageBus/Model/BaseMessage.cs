@@ -1,14 +1,17 @@
-﻿namespace DoaMais.MessageBus.Model
+﻿using System.Text.Json.Serialization;
+
+namespace DoaMais.MessageBus.Model
 {
-    public class BaseMessage
+    public abstract class BaseMessage
     {
         public Guid MessageId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public BaseMessage()
+        protected BaseMessage()
         {
             MessageId = Guid.NewGuid();
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = DateTime.Now;
         }
     }
+
 }

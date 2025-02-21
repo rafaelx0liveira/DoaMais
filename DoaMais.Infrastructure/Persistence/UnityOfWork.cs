@@ -14,7 +14,7 @@ namespace DoaMais.Infrastructure.Persistence
         IEmployeeRepository employeeRepository,
         IAddressRepository addressRepository,
         IDonationRepository donationRepository
-        ): IUnitOfWork
+    ): IUnitOfWork
     {
         private readonly SQLServerContext _sqlServerContext = sqlServerContext;
         private readonly IDonorRepository _donorRepository = donorRepository;
@@ -27,7 +27,6 @@ namespace DoaMais.Infrastructure.Persistence
         public IEmployeeRepository Employee => _employeeRepository;
         public IAddressRepository Address => _addressRepository;
         public IDonationRepository Donation => _donationRepository;
-
 
         public async Task<int> CompleteAsync()
         {
@@ -77,5 +76,4 @@ namespace DoaMais.Infrastructure.Persistence
             }
         }
     }
-
 }

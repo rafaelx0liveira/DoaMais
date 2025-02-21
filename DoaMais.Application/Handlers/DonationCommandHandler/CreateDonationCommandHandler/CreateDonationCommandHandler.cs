@@ -5,17 +5,20 @@ using DoaMais.Application.Services.DonorService;
 using DoaMais.Domain.Interfaces.IUnitOfWork;
 using DoaMais.MessageBus.Interface;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 
 namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationCommandHandler
 {
     public class CreateDonationCommandHandler(
             IUnitOfWork unitOfWork,
-            IMessageBus messageBus
+            IMessageBus messageBus,
+            IConfiguration configuration
         )
         : IRequestHandler<CreateDonationCommand, ResultViewModel<Guid>>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMessageBus _messageBus = messageBus;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<ResultViewModel<Guid>> Handle(CreateDonationCommand request, CancellationToken cancellationToken)
         {
@@ -37,9 +40,12 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
                 donation.DonorId,
                 donation.Donor.Email,
                 donation.Donor.BloodType,
+                donation.Donor.RHFactor,
                 donation.QuantityML);
 
-            await _messageBus.PublishMessageAsync(donationEvent);
+            var queueName = _configuration["RabbitMQ:QueueName"] ?? throw new ArgumentNullException("Password não encontrado no appsettings");
+
+            await _messageBus.PublishMessageAsync(queueName, donationEvent);
 
             return ResultViewModel<Guid>.Success(donation.Id);
         }

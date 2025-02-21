@@ -1,8 +1,8 @@
-﻿using DoaMais.Domain.Entities.Enums;
-using DoaMais.MessageBus.Model;
+﻿using DoaMais.MessageBus.Model;
+using DoaMais.StockService.Model.Enums;
 using System.Text.Json.Serialization;
 
-namespace DoaMais.Application.DTOs
+namespace DoaMais.StockService.ValueObject
 {
     public class DonationRegisteredEvent : BaseMessage
     {
@@ -16,13 +16,17 @@ namespace DoaMais.Application.DTOs
         public RHFactor RHFactor { get; set; }
         public int Quantity { get; set; }
 
-        public DonationRegisteredEvent(Guid donorId, string donorEmail, BloodType bloodType, RHFactor rhFactor, int quantity)
-            : base() // Constructor for BaseMessage
+        public DonationRegisteredEvent()
+        {
+            
+        }
+
+        public DonationRegisteredEvent(Guid donorId, string donorEmail, BloodType bloodType, RHFactor rHFactor, int quantity, DateTime date) : base()
         {
             DonorId = donorId;
             DonorEmail = donorEmail;
             BloodType = bloodType;
-            RHFactor = rhFactor;
+            RHFactor = rHFactor;
             Quantity = quantity;
         }
     }

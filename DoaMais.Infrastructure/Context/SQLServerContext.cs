@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Entities.Enums;
-using System.Linq.Expressions;
 
 namespace DoaMais.Infrastructure.Context
 {
@@ -10,7 +9,6 @@ namespace DoaMais.Infrastructure.Context
         public SQLServerContext(DbContextOptions<SQLServerContext> options) : base(options) { }
 
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<BloodStock> BloodStocks { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Donor> Donors { get; set; }
         public DbSet<Employee> Employees { get; set; }
@@ -36,20 +34,9 @@ namespace DoaMais.Infrastructure.Context
                 .HasForeignKey(e => e.AddressId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Garantindo que BloodType e RHFactor sejam únicos em BloodStock
-            modelBuilder.Entity<BloodStock>()
-                .HasIndex(bs => new { bs.BloodType, bs.RHFactor })
-                .IsUnique();
-
             modelBuilder.Entity<Donor>()
                 .HasIndex(e => e.Email)
                 .IsUnique();
-
-            // Garantindo que QuantityML seja >= 0
-            modelBuilder.Entity<BloodStock>()
-                .Property(bs => bs.QuantityML)
-                .HasDefaultValue(0)
-                .IsRequired();
 
             modelBuilder.Entity<Employee>()
                 .HasIndex(e => e.Email)
@@ -65,20 +52,6 @@ namespace DoaMais.Infrastructure.Context
 
             modelBuilder.Entity<Donor>()
                 .Property(d => d.RHFactor)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
-                );
-
-            modelBuilder.Entity<BloodStock>()
-                .Property(bs => bs.BloodType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
-                );
-
-            modelBuilder.Entity<BloodStock>()
-                .Property(bs => bs.RHFactor)
                 .HasConversion(
                     v => v.ToString(),
                     v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
