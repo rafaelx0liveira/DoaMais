@@ -43,9 +43,10 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
                 donation.Donor.RHFactor,
                 donation.QuantityML);
 
-            var queueName = _configuration["RabbitMQ:QueueName"] ?? throw new ArgumentNullException("Password não encontrado no appsettings");
+            var donationQueueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("DonationQueueName not found.");
+            var donationExchangeName = _configuration["RabbitMQ:ExchangeDonationName"] ?? throw new ArgumentNullException("ExchangeDonationName not found.");
 
-            await _messageBus.PublishMessageAsync(queueName, donationEvent);
+            await _messageBus.PublishMessageAsync(donationExchangeName, donationQueueName, donationEvent);
 
             return ResultViewModel<Guid>.Success(donation.Id);
         }

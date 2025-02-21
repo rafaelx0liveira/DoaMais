@@ -12,14 +12,11 @@ builder.Services.AddHostedService<StockWorker>();
 
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
 
-// Configuração do RabbitMQ
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
-// Adiciona repositórios como Scoped (correto)
 builder.Services.AddScoped<IBloodStockRepository, BloodStockRepository>();
 
-// Usa Scoped para o DbContext (correto)
 builder.Services.AddDbContext<SQLServerContext>(opt =>
 {
     opt.UseSqlServer(connectionString);

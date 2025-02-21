@@ -25,7 +25,7 @@ namespace DoaMais.MessageBus
             _password = settings.Password ?? throw new ArgumentNullException(nameof(settings.Password), "RabbitMQ Password is missing");
         }
 
-        public async Task PublishMessageAsync<T>(string queueName, T message)
+        public async Task PublishMessageAsync<T>(string exchangeName, string queueName, T message)
         {
             if (!await ConnectionExistsAsync())
             {
@@ -34,6 +34,15 @@ namespace DoaMais.MessageBus
 
             _channel ??= await _connection!.CreateChannelAsync();
 
+            // Criar o Exchange do tipo Fanout
+            await _channel.ExchangeDeclareAsync(
+                exchange: exchangeName,
+                type: ExchangeType.Fanout,
+                durable: true,
+                autoDelete: false,
+                arguments: null);
+
+            // Criar a fila
             await _channel.QueueDeclareAsync(
                 queue: queueName,
                 durable: true,
@@ -41,15 +50,23 @@ namespace DoaMais.MessageBus
                 autoDelete: false,
                 arguments: null);
 
+            // Vincular a fila ao Exchange
+            await _channel.QueueBindAsync(
+                queue: queueName,
+                exchange: exchangeName,
+                routingKey: "");
+
             byte[] body = GetMessageAsByteArray(message);
 
             await _channel.BasicPublishAsync(
-                exchange: "",
-                routingKey: queueName,
+                exchange: exchangeName,
+                routingKey: "",
+                mandatory: false,
                 body: body);
         }
 
-        public async Task ConsumeMessagesAsync<T>(string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
+
+        public async Task ConsumeMessagesAsync<T>(string exchangeName, string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
         {
             if (!await ConnectionExistsAsync())
             {
@@ -58,6 +75,17 @@ namespace DoaMais.MessageBus
 
             _channel ??= await _connection!.CreateChannelAsync();
 
+            // Declara o Exchange como Fanout
+            await _channel.ExchangeDeclareAsync(
+                exchange: exchangeName,
+                type: ExchangeType.Fanout,
+                durable: true,
+                autoDelete: false,
+                arguments: null,
+                cancellationToken: cancellationToken
+            );
+
+            // Declara a fila (caso ainda não tenha sido criada)
             await _channel.QueueDeclareAsync(
                 queue: queueName,
                 durable: true,
@@ -66,6 +94,9 @@ namespace DoaMais.MessageBus
                 arguments: null,
                 cancellationToken: cancellationToken
             );
+
+            // Faz o bind da fila ao Exchange Fanout
+            await _channel.QueueBindAsync(queue: queueName, exchange: exchangeName, routingKey: "", cancellationToken: cancellationToken);
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (model, ea) =>
@@ -90,6 +121,7 @@ namespace DoaMais.MessageBus
 
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
+
 
         private byte[] GetMessageAsByteArray<T>(T message)
         {

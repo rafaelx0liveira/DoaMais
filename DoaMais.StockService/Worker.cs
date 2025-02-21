@@ -11,6 +11,7 @@ namespace DoaMais.StockService
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<StockWorker> _logger;
         private readonly IConfiguration _configuration;
+        private readonly string _exchangeName;
         private readonly string _queueName;
 
         public StockWorker(
@@ -23,7 +24,8 @@ namespace DoaMais.StockService
             _scopeFactory = scopeFactory;
             _logger = logger;
             _configuration = configuration;
-            _queueName = _configuration["RabbitMQ:QueueName"] ?? throw new ArgumentNullException("QueueName não encontrado no appsettings");
+            _exchangeName = _configuration["RabbitMQ:ExchangeName"] ?? throw new ArgumentNullException("ExchangeName not found.");
+            _queueName = _configuration["RabbitMQ:QueueName"] ?? throw new ArgumentNullException("QueueName not found.");
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -37,7 +39,7 @@ namespace DoaMais.StockService
         {
             _logger.LogInformation("StockWorker rodando e ouvindo RabbitMQ...");
 
-            await _messageBus.ConsumeMessagesAsync<DonationRegisteredEvent>(_queueName, async (donationEvent) =>
+            await _messageBus.ConsumeMessagesAsync<DonationRegisteredEvent>(_exchangeName, _queueName, async (donationEvent) =>
             {
                 await ProcessDonation(donationEvent, stoppingToken);
             }, stoppingToken);

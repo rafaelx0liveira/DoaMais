@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DoaMais.MessageBus.Model
+﻿namespace DoaMais.MessageBus.Model
 {
     public abstract class BaseMessage
     {
