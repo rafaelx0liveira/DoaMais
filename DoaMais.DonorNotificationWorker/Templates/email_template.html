@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovante de Doação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+            .content p {
+                font-size: 16px;
+                color: #333;
+            }
+
+        .info {
+            background-color: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+            .info strong {
+                color: #d32f2f;
+            }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <strong>Comprovante de Doação de Sangue</strong>
+        </div>
+        <div class="content">
+            <p>Olá, <strong>{{DonorName}}</strong>!</p>
+            <p>Agradecemos imensamente por sua generosidade. Sua doação de sangue pode salvar vidas!</p>
+            <div class="info">
+                <p><strong>Dados da Doação:</strong></p>
+                <p><strong>Nome:</strong> {{DonorName}}</p>
+                <p><strong>Email:</strong> {{DonorEmail}}</p>
+                <p><strong>Tipo Sanguíneo:</strong> {{BloodType}} {{RHFactor}}</p>
+                <p><strong>Quantidade Doada:</strong> {{Quantity}} ml</p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Obrigado por ajudar a salvar vidas! 💖</p>
+            <p><em>Equipe DoaMais</em></p>
+        </div>
+    </div>
+</body>
+</html>

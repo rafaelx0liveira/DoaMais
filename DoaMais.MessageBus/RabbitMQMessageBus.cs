@@ -25,7 +25,7 @@ namespace DoaMais.MessageBus
             _password = settings.Password ?? throw new ArgumentNullException(nameof(settings.Password), "RabbitMQ Password is missing");
         }
 
-        public async Task PublishMessageAsync<T>(string exchangeName, string queueName, T message)
+        public async Task PublishFanoutMessageAsync<T>(string exchangeName, string queueName, T message)
         {
             if (!await ConnectionExistsAsync())
             {
@@ -65,8 +65,7 @@ namespace DoaMais.MessageBus
                 body: body);
         }
 
-
-        public async Task ConsumeMessagesAsync<T>(string exchangeName, string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
+        public async Task ConsumeFanoutMessagesAsync<T>(string exchangeName, string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
         {
             if (!await ConnectionExistsAsync())
             {
@@ -122,6 +121,85 @@ namespace DoaMais.MessageBus
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
 
+        public async Task PublishDirectMessageAsync<T>(string exchangeName, string routingKey, T message)
+        {
+            if (!await ConnectionExistsAsync())
+            {
+                throw new InvalidOperationException("Error connecting to RabbitMQ.");
+            }
+
+            _channel ??= await _connection!.CreateChannelAsync();
+
+            // Criar Exchange Direct
+            await _channel.ExchangeDeclareAsync(
+                exchange: exchangeName,
+                type: ExchangeType.Direct,
+                durable: true,
+                autoDelete: false,
+                arguments: null);
+
+            byte[] body = GetMessageAsByteArray(message);
+
+            await _channel.BasicPublishAsync(
+                exchange: exchangeName,
+                routingKey: routingKey, // RoutingKey é importante no Direct
+                mandatory: false,
+                body: body);
+        }
+
+        public async Task ConsumeDirectMessagesAsync<T>(string exchangeName, string queueName, string routingKey, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
+        {
+            if (!await ConnectionExistsAsync())
+            {
+                throw new InvalidOperationException("Error connecting to RabbitMQ.");
+            }
+
+            _channel ??= await _connection!.CreateChannelAsync();
+
+            // Criar Exchange Direct
+            await _channel.ExchangeDeclareAsync(
+                exchange: exchangeName,
+                type: ExchangeType.Direct,
+                durable: true,
+                autoDelete: false,
+                arguments: null);
+
+            // Criar a fila (se não existir)
+            await _channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            // Vincular a fila ao Exchange com uma Routing Key específica
+            await _channel.QueueBindAsync(
+                queue: queueName,
+                exchange: exchangeName,
+                routingKey: routingKey);
+
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.ReceivedAsync += async (model, ea) =>
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                var deserializedMessage = JsonSerializer.Deserialize<T>(message);
+
+                if (deserializedMessage != null)
+                {
+                    await messageHandler(deserializedMessage);
+                }
+
+                await _channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
+            };
+
+            await _channel.BasicConsumeAsync(
+                queue: queueName,
+                autoAck: false,
+                consumer: consumer);
+
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+        }
 
         private byte[] GetMessageAsByteArray<T>(T message)
         {

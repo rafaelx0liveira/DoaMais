@@ -38,6 +38,7 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
 
             var donationEvent = new DonationRegisteredEvent(  
                 donation.DonorId,
+                donation.Donor.Name,
                 donation.Donor.Email,
                 donation.Donor.BloodType,
                 donation.Donor.RHFactor,
@@ -46,7 +47,7 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
             var donationQueueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("DonationQueueName not found.");
             var donationExchangeName = _configuration["RabbitMQ:ExchangeDonationName"] ?? throw new ArgumentNullException("ExchangeDonationName not found.");
 
-            await _messageBus.PublishMessageAsync(donationExchangeName, donationQueueName, donationEvent);
+            await _messageBus.PublishFanoutMessageAsync(donationExchangeName, donationQueueName, donationEvent);
 
             return ResultViewModel<Guid>.Success(donation.Id);
         }
