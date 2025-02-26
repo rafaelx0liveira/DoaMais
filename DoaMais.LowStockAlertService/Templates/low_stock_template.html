@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta de Estoque Crítico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+            .content p {
+                font-size: 16px;
+                color: #333;
+            }
+
+        .alert-box {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 15px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            ⚠️ ALERTA: ESTOQUE CRÍTICO DE SANGUE ⚠️
+        </div>
+        <div class="content">
+            <p>Olá, <strong>{{Administrator}}</strong>.</p>
+            <p>O estoque de sangue atingiu um nível crítico e necessita de atenção imediata.</p>
+            <div class="alert-box">
+                <p><strong>Detalhes do Estoque Crítico:</strong></p>
+                <p><strong>Tipo Sanguíneo:</strong> {{BloodType}} {{RHFactor}}</p>
+                <p><strong>Quantidade Disponível:</strong> {{Quantity}} ml</p>
+            </div>
+            <p>Pedimos que tome as providências necessárias para garantir a reposição do estoque.</p>
+        </div>
+        <div class="footer">
+            <p>Obrigado pela sua dedicação!</p>
+            <p><em>Equipe DoaMais</em></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,21 +1,19 @@
-using DoaMais.MessageBus.Interface;
-using DoaMais.MessageBus;
+using DoaMais.LowStockAlertService;
+using DoaMais.MessageBus.Configuration;
 using System.Net.Mail;
 using System.Net;
-using DoaMais.MessageBus.Configuration;
-using DoaMais.DonorNotificationService.Services;
-using DoaMais.DonorNotificationService.Services.Interface;
-using DoaMais.DonorNotificationService;
+using DoaMais.LowStockAlertService.Services.Interface;
+using DoaMais.LowStockAlertService.Services;
+using DoaMais.MessageBus.Interface;
+using DoaMais.MessageBus;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
-
-builder.Configuration.AddEnvironmentVariables(prefix: "SENDGRID_");
 builder.Services.AddSingleton<ISendEmailService, SendEmailService>();
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
-builder.Services.AddHostedService<DonorNotificationWorker>();
+builder.Services.AddHostedService<LowStockAlertWorker>();
 
 string? sendGridKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY", EnvironmentVariableTarget.User);
 
@@ -29,7 +27,6 @@ builder.Services.AddScoped<SmtpClient>(provider =>
     };
     return smtpClient;
 });
-
 
 var host = builder.Build();
 host.Run();

@@ -1,8 +1,8 @@
-using DoaMais.DonorNotificationWorker.Services.Interface;
+using DoaMais.DonorNotificationService.Services.Interface;
 using DoaMais.DonorNotificationWorker.ValueObject;
 using DoaMais.MessageBus.Interface;
 
-namespace DoaMais.DonorNotificationWorker
+namespace DoaMais.DonorNotificationService
 {
     public class DonorNotificationWorker : BackgroundService
     {

@@ -15,6 +15,7 @@ namespace DoaMais.StockService
         private readonly string _donationExchangeName;
         private readonly string _donationQueueName;
 
+        private readonly string _lowStockQueueName;
         private readonly string _lowStockRoutingKeyName;
         private readonly string _lowStockExchangeName;
 
@@ -32,20 +33,21 @@ namespace DoaMais.StockService
             _donationExchangeName = _configuration["RabbitMQ:DonationExchangeName"] ?? throw new ArgumentNullException("DonationExchangeName not found.");
             _donationQueueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("DonationQueueName not found.");
 
+            _lowStockQueueName = _configuration["RabbitMQ:LowStockAlertQueueName"] ?? throw new ArgumentNullException("LowStockAlertQueueName not found.");
             _lowStockRoutingKeyName = _configuration["RabbitMQ:LowStockRoutingKeyName"] ?? throw new ArgumentNullException("LowStockRoutingKeyName not found.");
             _lowStockExchangeName = _configuration["RabbitMQ:LowStockAlertExchangeName"] ?? throw new ArgumentNullException("LowStockAlertExchangeName not found.");
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Iniciando StockWorker...");
+            _logger.LogInformation("[StockService] - Iniciando...");
 
             await base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("StockWorker rodando e ouvindo RabbitMQ...");
+            _logger.LogInformation("[StockService] - Rodando e ouvindo RabbitMQ...");
 
             await _messageBus.ConsumeFanoutMessagesAsync<DonationRegisteredEvent>(_donationExchangeName, _donationQueueName, async (donationEvent) =>
             {
@@ -57,7 +59,7 @@ namespace DoaMais.StockService
 
         private async Task ProcessDonation(DonationRegisteredEvent donationEvent, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"[StockService] Processando doação: {donationEvent.DonorId} - {donationEvent.Quantity}ml de {donationEvent.BloodType} - {donationEvent.RHFactor}");
+            _logger.LogInformation($"[StockService] - Processando doação: {donationEvent.DonorId} - {donationEvent.Quantity}ml de {donationEvent.BloodType} - {donationEvent.RHFactor}");
 
             using var scope = _scopeFactory.CreateScope();
             var stockRepository = scope.ServiceProvider.GetRequiredService<IBloodStockRepository>();
@@ -80,9 +82,16 @@ namespace DoaMais.StockService
 
             if (stock.QuantityML < 100) // minimum quantity in stock
             {
-                var lowStockAlert = new LowStockAlertEvent(donationEvent.BloodType, donationEvent.RHFactor, stock.QuantityML);
+                _logger.LogInformation($"[StockService] - Estoque em quantidade crítica - {stock.QuantityML} ml!");
+
+                var adminRepository = scope.ServiceProvider.GetRequiredService<IAdminRepository>();
+                List<AdminDTO> admins = await adminRepository.GetAdministratorsAsync();
+
+                _logger.LogInformation($"[StockService] - Publicando mensagem de alerta para os administradores na fila {_lowStockQueueName}");
+
+                var lowStockAlert = new LowStockAlertEvent(donationEvent.BloodType, donationEvent.RHFactor, stock.QuantityML, admins);
                 var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
-                await messageBus.PublishDirectMessageAsync(_lowStockExchangeName, _lowStockRoutingKeyName, lowStockAlert);
+                await messageBus.PublishDirectMessageAsync(_lowStockExchangeName, _lowStockQueueName, _lowStockRoutingKeyName, lowStockAlert);
             }
 
             _logger.LogInformation("[StockService] Estoque atualizado com sucesso!");

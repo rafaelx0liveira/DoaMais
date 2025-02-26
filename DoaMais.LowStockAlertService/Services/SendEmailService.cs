@@ -1,17 +1,19 @@
-﻿using DoaMais.DonorNotificationService.Services.Interface;
+﻿using DoaMais.LowStockAlertService.Services.Interface;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Text;
 using System.Web;
 
-namespace DoaMais.DonorNotificationService.Services
+namespace DoaMais.LowStockAlertService.Services
 {
     public class SendEmailService : ISendEmailService
     {
         private readonly string _apiKey;
+        private readonly IConfiguration _configuration;
 
         public SendEmailService(IConfiguration configuration)
         {
+            _configuration = configuration;
             _apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY", EnvironmentVariableTarget.User) ?? throw new ArgumentNullException("DonationExchangeName not found.");
         }
 

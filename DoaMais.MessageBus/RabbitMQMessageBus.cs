@@ -102,7 +102,12 @@ namespace DoaMais.MessageBus
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var deserializedMessage = JsonSerializer.Deserialize<T>(message);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var deserializedMessage = JsonSerializer.Deserialize<T>(message, options);
 
                 if (deserializedMessage != null)
                 {
@@ -121,7 +126,7 @@ namespace DoaMais.MessageBus
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
 
-        public async Task PublishDirectMessageAsync<T>(string exchangeName, string routingKey, T message)
+        public async Task PublishDirectMessageAsync<T>(string exchangeName, string queueName, string routingKey, T message)
         {
             if (!await ConnectionExistsAsync())
             {
@@ -138,11 +143,25 @@ namespace DoaMais.MessageBus
                 autoDelete: false,
                 arguments: null);
 
+            // Criar a fila ANTES de publicar a mensagem
+            await _channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            // Vincular a fila ao Exchange com uma Routing Key específica
+            await _channel.QueueBindAsync(
+                queue: queueName,
+                exchange: exchangeName,
+                routingKey: routingKey);
+
             byte[] body = GetMessageAsByteArray(message);
 
             await _channel.BasicPublishAsync(
                 exchange: exchangeName,
-                routingKey: routingKey, // RoutingKey é importante no Direct
+                routingKey: routingKey, // Routing Key é importante no Direct
                 mandatory: false,
                 body: body);
         }
@@ -164,7 +183,7 @@ namespace DoaMais.MessageBus
                 autoDelete: false,
                 arguments: null);
 
-            // Criar a fila (se não existir)
+            // Criar a fila ANTES de consumir
             await _channel.QueueDeclareAsync(
                 queue: queueName,
                 durable: true,
@@ -172,7 +191,7 @@ namespace DoaMais.MessageBus
                 autoDelete: false,
                 arguments: null);
 
-            // Vincular a fila ao Exchange com uma Routing Key específica
+            // Vincular a fila ao Exchange
             await _channel.QueueBindAsync(
                 queue: queueName,
                 exchange: exchangeName,
@@ -183,7 +202,13 @@ namespace DoaMais.MessageBus
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var deserializedMessage = JsonSerializer.Deserialize<T>(message);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var deserializedMessage = JsonSerializer.Deserialize<T>(message, options);
+
 
                 if (deserializedMessage != null)
                 {
@@ -200,6 +225,7 @@ namespace DoaMais.MessageBus
 
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
+
 
         private byte[] GetMessageAsByteArray<T>(T message)
         {

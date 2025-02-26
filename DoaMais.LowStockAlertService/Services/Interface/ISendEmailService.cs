@@ -1,5 +1,5 @@
 ﻿
-namespace DoaMais.DonorNotificationService.Services.Interface
+namespace DoaMais.LowStockAlertService.Services.Interface
 {
     public interface ISendEmailService
     {

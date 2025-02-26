@@ -1,9 +1,10 @@
-﻿using DoaMais.StockService.Model.Enums;
+﻿using DoaMais.LowStockAlertService.Utils;
+using DoaMais.LowStockAlertService.ValueObject.Enums;
 using System.Text.Json.Serialization;
 
-namespace DoaMais.StockService.DTOs
+namespace DoaMais.LowStockAlertService.ValueObject
 {
-    public class LowStockAlertEvent
+    public class LowStockAlertEventVO
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public BloodType BloodType { get; set; }
@@ -12,9 +13,11 @@ namespace DoaMais.StockService.DTOs
         public RHFactor RHFactor { get; set; }
 
         public int QuantityML { get; set; }
-        public List<AdminDTO> AdminEmails { get; set; }
 
-        public LowStockAlertEvent(BloodType bloodType, RHFactor rHFactor, int quantityML, List<AdminDTO> adminEmails)
+        [JsonConverter(typeof(AdminListJsonConverter))]
+        public List<Admin> AdminEmails { get; set; }
+
+        public LowStockAlertEventVO(BloodType bloodType, RHFactor rHFactor, int quantityML, List<Admin> adminEmails)
         {
             BloodType = bloodType;
             RHFactor = rHFactor;

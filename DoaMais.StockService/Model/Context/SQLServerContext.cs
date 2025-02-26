@@ -8,6 +8,7 @@ namespace DoaMais.StockService.Model.Context
         public SQLServerContext(DbContextOptions<SQLServerContext> options) : base(options) { }
 
         public DbSet<BloodStock> BloodStocks { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
