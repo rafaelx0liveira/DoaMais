@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace DoaMais.StockService.DTOs
 {
-    public class LowStockAlertEvent
+    public class LowStockAlertEventDTO
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public BloodType BloodType { get; set; }
@@ -14,7 +14,7 @@ namespace DoaMais.StockService.DTOs
         public int QuantityML { get; set; }
         public List<AdminDTO> AdminEmails { get; set; }
 
-        public LowStockAlertEvent(BloodType bloodType, RHFactor rHFactor, int quantityML, List<AdminDTO> adminEmails)
+        public LowStockAlertEventDTO(BloodType bloodType, RHFactor rHFactor, int quantityML, List<AdminDTO> adminEmails)
         {
             BloodType = bloodType;
             RHFactor = rHFactor;

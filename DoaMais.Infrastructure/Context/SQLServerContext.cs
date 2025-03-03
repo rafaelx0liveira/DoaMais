@@ -12,6 +12,8 @@ namespace DoaMais.Infrastructure.Context
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Donor> Donors { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Hospital> Hospitals { get; set; }
+        public DbSet<BloodTransfusion> BloodTransfusions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Relacionamento 1:N Address -> Donor
@@ -20,6 +22,13 @@ namespace DoaMais.Infrastructure.Context
                 .WithMany(a => a.Donors) // Address has many donors
                 .HasForeignKey(d => d.AddressId);
 
+            //Relacionamento 1:N, Address -> Employee
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Address)
+                .WithMany(e => e.Employees)
+                .HasForeignKey(e => e.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Relacionamento 1:N, Donor -> Donations
             modelBuilder.Entity<Donation>()
                 .HasOne(d => d.Donor)
@@ -27,11 +36,19 @@ namespace DoaMais.Infrastructure.Context
                 .HasForeignKey(d => d.DonorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //Relacionamento 1:N, Address -> Employee
-            modelBuilder.Entity<Employee>()
-                .HasOne(e => e.Address)
-                .WithMany(e => e.Employees)
-                .HasForeignKey(e => e.AddressId)
+            modelBuilder.Entity<Hospital>()
+                .Property(h => h.IsActive)
+                .HasDefaultValue(true)
+                .HasConversion<bool>();
+
+            modelBuilder.Entity<Hospital>()
+                .HasIndex(h => h.CNPJ)
+                .IsUnique();
+
+            modelBuilder.Entity<BloodTransfusion>()
+                .HasOne(bt => bt.Hospital)
+                .WithMany(h => h.BloodTransfusions)
+                .HasForeignKey(bt => bt.HospitalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Donor>()

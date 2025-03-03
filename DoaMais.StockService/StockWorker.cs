@@ -49,7 +49,7 @@ namespace DoaMais.StockService
         {
             _logger.LogInformation("[StockService] - Rodando e ouvindo RabbitMQ...");
 
-            await _messageBus.ConsumeFanoutMessagesAsync<DonationRegisteredEvent>(_donationExchangeName, _donationQueueName, async (donationEvent) =>
+            await _messageBus.ConsumeFanoutMessagesAsync<DonationRegisteredEventVO>(_donationExchangeName, _donationQueueName, async (donationEvent) =>
             {
                 await ProcessDonation(donationEvent, stoppingToken);
             }, stoppingToken);
@@ -57,7 +57,7 @@ namespace DoaMais.StockService
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
-        private async Task ProcessDonation(DonationRegisteredEvent donationEvent, CancellationToken cancellationToken)
+        private async Task ProcessDonation(DonationRegisteredEventVO donationEvent, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"[StockService] - Processando doação: {donationEvent.DonorId} - {donationEvent.Quantity}ml de {donationEvent.BloodType} - {donationEvent.RHFactor}");
 
@@ -65,6 +65,7 @@ namespace DoaMais.StockService
             var stockRepository = scope.ServiceProvider.GetRequiredService<IBloodStockRepository>();
 
             var stock = await stockRepository.GetBloodByRHAndTypeAsync(donationEvent.BloodType, donationEvent.RHFactor);
+
             if (stock == null)
             {
                 stock = new BloodStock
@@ -89,7 +90,7 @@ namespace DoaMais.StockService
 
                 _logger.LogInformation($"[StockService] - Publicando mensagem de alerta para os administradores na fila {_lowStockQueueName}");
 
-                var lowStockAlert = new LowStockAlertEvent(donationEvent.BloodType, donationEvent.RHFactor, stock.QuantityML, admins);
+                var lowStockAlert = new LowStockAlertEventDTO(donationEvent.BloodType, donationEvent.RHFactor, stock.QuantityML, admins);
                 var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
                 await messageBus.PublishDirectMessageAsync(_lowStockExchangeName, _lowStockQueueName, _lowStockRoutingKeyName, lowStockAlert);
             }

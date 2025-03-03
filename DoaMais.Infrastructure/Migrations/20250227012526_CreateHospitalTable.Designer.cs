@@ -4,6 +4,7 @@ using DoaMais.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoaMais.Infrastructure.Migrations
 {
     [DbContext(typeof(SQLServerContext))]
-    partial class SQLServerContextModelSnapshot : ModelSnapshot
+    [Migration("20250227012526_CreateHospitalTable")]
+    partial class CreateHospitalTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,7 +30,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<string>("City")
                         .HasMaxLength(300)
@@ -54,41 +57,12 @@ namespace DoaMais.Infrastructure.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("DoaMais.Domain.Entities.BloodTransfusion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
-
-                    b.Property<int>("BloodType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("HospitalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("QuantityML")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RHFactor")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TransfusionDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HospitalId");
-
-                    b.ToTable("BloodTransfusions");
-                });
-
             modelBuilder.Entity("DoaMais.Domain.Entities.Donation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("DonationDate")
                         .HasColumnType("datetime2")
@@ -113,7 +87,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
@@ -166,7 +140,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
@@ -207,7 +181,7 @@ namespace DoaMais.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<string>("CNPJ")
                         .IsRequired()
@@ -218,9 +192,7 @@ namespace DoaMais.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -236,17 +208,6 @@ namespace DoaMais.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Hospitals");
-                });
-
-            modelBuilder.Entity("DoaMais.Domain.Entities.BloodTransfusion", b =>
-                {
-                    b.HasOne("DoaMais.Domain.Entities.Hospital", "Hospital")
-                        .WithMany("BloodTransfusions")
-                        .HasForeignKey("HospitalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Hospital");
                 });
 
             modelBuilder.Entity("DoaMais.Domain.Entities.Donation", b =>
@@ -292,11 +253,6 @@ namespace DoaMais.Infrastructure.Migrations
             modelBuilder.Entity("DoaMais.Domain.Entities.Donor", b =>
                 {
                     b.Navigation("Donations");
-                });
-
-            modelBuilder.Entity("DoaMais.Domain.Entities.Hospital", b =>
-                {
-                    b.Navigation("BloodTransfusions");
                 });
 #pragma warning restore 612, 618
         }

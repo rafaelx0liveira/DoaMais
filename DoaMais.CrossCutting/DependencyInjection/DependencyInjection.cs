@@ -20,6 +20,8 @@ using DoaMais.Infrastructure.Repositories.DonationRepository;
 using DoaMais.MessageBus.Configuration;
 using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
+using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
+using DoaMais.Infrastructure.Repositories.HospitalRepository;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -59,6 +61,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddScoped<IDonationRepository, DonationRepository>();
+            services.AddScoped<IHospitalRepository, HospitalRepository>();
 
             return services;
         }

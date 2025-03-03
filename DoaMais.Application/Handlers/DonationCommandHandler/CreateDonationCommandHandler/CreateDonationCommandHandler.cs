@@ -36,7 +36,7 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
             await _unitOfWork.Donation.AddDonationAsync(donation);
             await _unitOfWork.CompleteAsync();
 
-            var donationEvent = new DonationRegisteredEvent(  
+            var donationEvent = new DonationRegisteredEventDTO(  
                 donation.DonorId,
                 donation.Donor.Name,
                 donation.Donor.Email,

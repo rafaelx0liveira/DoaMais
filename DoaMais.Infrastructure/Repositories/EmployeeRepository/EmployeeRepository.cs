@@ -25,12 +25,12 @@ namespace DoaMais.Infrastructure.Repositories.EmployeeRepository
                 .ToListAsync();
         }
 
-        public async Task<Employee> GetEmployeeByEmailAsync(string email)
+        public async Task<Employee?> GetEmployeeByEmailAsync(string email)
         {
             return await _context.Employees.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task<Employee> GetEmployeeByIdAsync(Guid id)
+        public async Task<Employee?> GetEmployeeByIdAsync(Guid id)
         {
             return await _context.Employees.FirstOrDefaultAsync(x => x.Id == id);
         }
