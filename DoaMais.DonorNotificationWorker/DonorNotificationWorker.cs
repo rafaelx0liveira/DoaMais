@@ -14,6 +14,7 @@ namespace DoaMais.DonorNotificationService
         private readonly string _projectPath;
         private readonly string _normalizedPath;
 
+        private readonly string _donorNotificationRoutingKeyName;
         private readonly string _donorNotificationExchangeName;
         private readonly string _donorNotificationQueueName;
 
@@ -27,18 +28,22 @@ namespace DoaMais.DonorNotificationService
             _projectPath = Path.Combine(AppContext.BaseDirectory, "Templates/email_template.html");
             _normalizedPath = Path.GetFullPath(_projectPath);
 
-            _donorNotificationExchangeName = _configuration["RabbitMQ:DonationExchangeName"] ?? throw new ArgumentNullException("DonationExchangeName not found.");
+            _donorNotificationExchangeName = _configuration["RabbitMQ:DonorNotificationExchangeName"] ?? throw new ArgumentNullException("DonorNotificationExchangeName not found.");
             _donorNotificationQueueName = _configuration["RabbitMQ:DonorNotificationQueueName"] ?? throw new ArgumentNullException("DonorNotificationQueueName not found.");
+            _donorNotificationRoutingKeyName = _configuration["RabbitMQ:DonorNotificationRoutingKey"] ?? throw new ArgumentNullException("DonorNotificationRoutingKey not found.");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("DonorNotificationService: Ouvindo mensagens...");
+            _logger.LogInformation("[DonorNotificationService] - Rodando e ouvindo RabbitMQ...");
 
-            await _messageBus.ConsumeFanoutMessagesAsync<DonationRegisteredEvent>(_donorNotificationExchangeName, _donorNotificationQueueName,
+            await _messageBus.ConsumeDirectMessagesAsync<DonationRegisteredEventVO>(
+                _donorNotificationExchangeName, 
+                _donorNotificationQueueName, 
+                _donorNotificationRoutingKeyName,
                 async (donationEvent) =>
                 {
-                    _logger.LogInformation($"Enviando email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                    _logger.LogInformation($"[DonorNotificationService] - Enviando email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
 
                     Dictionary<string, string> placeholders = new Dictionary<string, string>
                     {
@@ -58,13 +63,13 @@ namespace DoaMais.DonorNotificationService
                             placeholders
                         );
 
-                        _logger.LogInformation($"Enviado email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.LogInformation($"[DonorNotificationService] - Enviado email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"Erro ao enviar email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.LogInformation($"[DonorNotificationService] - Erro ao enviar email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
                     }
-                });
+                }, stoppingToken);
         }
     }
 }

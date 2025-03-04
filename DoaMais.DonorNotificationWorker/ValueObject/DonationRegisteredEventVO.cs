@@ -1,8 +1,8 @@
-﻿using DoaMais.MessageBus.Model;
-using DoaMais.StockService.Model.Enums;
+﻿using DoaMais.DonorNotificationWorker.ValueObject.Enums;
+using DoaMais.MessageBus.Model;
 using System.Text.Json.Serialization;
 
-namespace DoaMais.StockService.ValueObject
+namespace DoaMais.DonorNotificationWorker.ValueObject
 {
     public class DonationRegisteredEventVO : BaseMessage
     {
@@ -19,7 +19,7 @@ namespace DoaMais.StockService.ValueObject
 
         public DonationRegisteredEventVO()
         {
-            
+
         }
 
         public DonationRegisteredEventVO(Guid donorId, string donorName, string donorEmail, BloodType bloodType, RHFactor rHFactor, int quantity, DateTime date) : base()

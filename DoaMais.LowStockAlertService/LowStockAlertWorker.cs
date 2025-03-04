@@ -38,7 +38,7 @@ namespace DoaMais.LowStockAlertService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("LowStockAlertWorker rodando e ouvindo RabbitMQ...");
+            _logger.LogInformation("[LowStockAlertWorker] - Rodando e ouvindo RabbitMQ...");
 
             await _messageBus.ConsumeDirectMessagesAsync<LowStockAlertEventVO>(
                 _lowStockExchangeName,
@@ -46,7 +46,7 @@ namespace DoaMais.LowStockAlertService
                 _lowStockRoutingKeyName,
                 async (lowStockEvent) =>
                 {
-                    _logger.LogInformation($"Estoque crítico para {lowStockEvent.BloodType} {lowStockEvent.RHFactor}: {lowStockEvent.QuantityML} ml.");
+                    _logger.LogInformation($"[LowStockAlertWorker] - Estoque crítico para {lowStockEvent.BloodType} {lowStockEvent.RHFactor}: {lowStockEvent.QuantityML} ml.");
 
                     foreach (var adminEmail in lowStockEvent.AdminEmails)
                     {
@@ -67,11 +67,11 @@ namespace DoaMais.LowStockAlertService
                                 placeholders
                             );
 
-                            _logger.LogInformation($"Enviado alerta para administrador {adminEmail}");
+                            _logger.LogInformation($"[LowStockAlertWorker] - Enviado alerta para administrador {adminEmail}");
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError($"Erro ao enviar alerta para administrador {adminEmail}: {ex.Message}");
+                            _logger.LogError($"[LowStockAlertWorker] - Erro ao enviar alerta para administrador {adminEmail}: {ex.Message}");
                         }
                     }
                 },

@@ -1,4 +1,4 @@
-﻿using DoaMais.Application.Commands.EmployeeCommands.CreateEmployeeCommand;
+﻿using DoaMais.Application.Commands.BloodTransfusionCommands.CreateBloodTransfusionCommand;
 using DoaMais.Application.Queries.EmployeesQueries.GetAllEmployeesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +18,7 @@ namespace DoaMais.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Post([FromBody] CreateEmployeeCommand request)
+        public async Task<IActionResult> Post([FromBody] CreateBloodTransfusionCommand request)
         {
             var result = await _mediator.Send(request);
 

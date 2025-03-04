@@ -45,9 +45,10 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
                 donation.QuantityML);
 
             var donationQueueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("DonationQueueName not found.");
-            var donationExchangeName = _configuration["RabbitMQ:ExchangeDonationName"] ?? throw new ArgumentNullException("ExchangeDonationName not found.");
+            var stockEventExchangeName = _configuration["RabbitMQ:StockEventsExchangeName"] ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            var donationRoutingKey = _configuration["RabbitMQ:DonationRoutingKey"] ?? throw new ArgumentNullException("DonationRoutingKey not found.");
 
-            await _messageBus.PublishFanoutMessageAsync(donationExchangeName, donationQueueName, donationEvent);
+            await _messageBus.PublishDirectMessageAsync(stockEventExchangeName, donationQueueName, donationRoutingKey, donationEvent);
 
             return ResultViewModel<Guid>.Success(donation.Id);
         }

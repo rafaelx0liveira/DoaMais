@@ -1,10 +1,9 @@
-﻿using DoaMais.DonorNotificationWorker.ValueObject.Enums;
-using DoaMais.MessageBus.Model;
+﻿using DoaMais.StockService.Model.Enums;
 using System.Text.Json.Serialization;
 
-namespace DoaMais.DonorNotificationWorker.ValueObject
+namespace DoaMais.StockService.DTOs
 {
-    public class DonationRegisteredEvent : BaseMessage
+    public class DonationRegisteredEventDTO
     {
         public Guid DonorId { get; set; }
         public string DonorName { get; set; }
@@ -17,18 +16,13 @@ namespace DoaMais.DonorNotificationWorker.ValueObject
         public RHFactor RHFactor { get; set; }
         public int Quantity { get; set; }
 
-        public DonationRegisteredEvent()
-        {
-
-        }
-
-        public DonationRegisteredEvent(Guid donorId, string donorName, string donorEmail, BloodType bloodType, RHFactor rHFactor, int quantity, DateTime date) : base()
+        public DonationRegisteredEventDTO(Guid donorId, string donorName, string donorEmail, BloodType bloodType, RHFactor rhFactor, int quantity)
         {
             DonorId = donorId;
             DonorName = donorName;
             DonorEmail = donorEmail;
             BloodType = bloodType;
-            RHFactor = rHFactor;
+            RHFactor = rhFactor;
             Quantity = quantity;
         }
     }

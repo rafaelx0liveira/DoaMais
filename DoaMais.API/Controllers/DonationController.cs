@@ -1,5 +1,4 @@
 ﻿using DoaMais.Application.Commands.DonationCommands.CreateDonationCommand;
-using DoaMais.Application.Commands.DonorCommands.CreateDonorCommand;
 using DoaMais.Application.Queries.DonationQueries.GetLastDonationQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
