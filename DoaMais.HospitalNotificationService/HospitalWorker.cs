@@ -19,28 +19,14 @@ namespace DoaMais.HospitalNotificationService
         private readonly string _projectPath;
         private readonly string _normalizedPath;
 
-        private readonly string _confirmedColor = "#2e7d32";
-        private readonly string _refusedColor = "#d32f2f";
+        private readonly Dictionary<string, string> _emailSettings = new();
 
-        private readonly string _confirmedHeader = "✅ SOLICITAÇÃO CONFIRMADA";
-        private readonly string _refusedHeader = "⚠️ SOLITICAÇÃO NÃO REALIZADA";
-
-        private readonly string _confirmedStatusBgColor = "#d4edda";
-        private readonly string _refusedStatusBgColor = "#f8d7da";
-
-        private readonly string _confirmedStatusTextColor = "#155724";
-        private readonly string _refusedStatusTextColor = "#721c24";
-
-        private readonly string _confirmedStatusBorderColor = "#c3e6cb";
-        private readonly string _refusedStatusBorderColor = "#f5c6cb";
-
-        private readonly string _confirmedStatusMessage = "A solicitação de sangue para transfusão foi realizada com sucesso.";
-        private readonly string _refusedStatusMessage = "Não há sangue suficiente no estoque.";
-
-        private readonly string _confirmedAdditionalMessage = "O sangue solicitado foi enviado com sucesso ao hospital.";
-        private readonly string _refusedAdditionalMessage = "Pedimos desculpas pelo transtorno. Reabastecemos o estoque e entraremos em contato assim que possível.";
-
-        public HospitalWorker(ILogger<HospitalWorker> logger, IServiceScopeFactory scopeFactory, IConfiguration configuration, IMessageBus messageBus, ISendEmailService sendEmailService)
+        public HospitalWorker(
+            ILogger<HospitalWorker> logger,
+            IServiceScopeFactory scopeFactory,
+            IConfiguration configuration,
+            IMessageBus messageBus,
+            ISendEmailService sendEmailService)
         {
             _logger = logger;
             _messageBus = messageBus;
@@ -54,6 +40,10 @@ namespace DoaMais.HospitalNotificationService
 
             _projectPath = Path.Combine(AppContext.BaseDirectory, "Templates/hospital_notification_template.html");
             _normalizedPath = Path.GetFullPath(_projectPath);
+
+            // Configurações de email para cada status
+            _emailSettings["Confirmada"] = "✅ SOLICITAÇÃO CONFIRMADA|#2e7d32|#d4edda|#155724|#c3e6cb|A solicitação de sangue para transfusão foi realizada com sucesso.|O sangue solicitado foi enviado com sucesso ao hospital.";
+            _emailSettings["Recusada"] = "⚠️ SOLICITAÇÃO NÃO REALIZADA|#d32f2f|#f8d7da|#721c24|#f5c6cb|Não há sangue suficiente no estoque.|Pedimos desculpas pelo transtorno. Reabastecemos o estoque e entraremos em contato assim que possível.";
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -68,38 +58,25 @@ namespace DoaMais.HospitalNotificationService
                 {
                     _logger.LogInformation($"[HospitalWorker] - Notificando hospital {bloodTransfusionNotificationVO.HospitalId} sobre status da solicitação de transfusão.");
 
-                    Dictionary<string, string> placeholders = new Dictionary<string, string>();
+                    // Obter configurações de email conforme o status da solicitação
+                    string statusKey = bloodTransfusionNotificationVO.Status.Equals("Confirmada") ? "Confirmada" : "Recusada";
+                    var emailConfig = _emailSettings[statusKey].Split('|');
 
-                    if (bloodTransfusionNotificationVO.Status.Equals("Confirmada"))
+                    Dictionary<string, string> placeholders = new()
                     {
-                        placeholders.Add("HeaderColor", _confirmedColor);
-                        placeholders.Add("HeaderTitle", _confirmedHeader);
-                        placeholders.Add("StatusBgColor", _confirmedStatusBgColor);
-                        placeholders.Add("StatusTextColor", _confirmedStatusTextColor);
-                        placeholders.Add("StatusBorderColor", _confirmedStatusBorderColor);
-                        placeholders.Add("StatusMessage", _confirmedStatusMessage);
-                        placeholders.Add("AdditionalMessage", _confirmedAdditionalMessage);
-                        placeholders.Add("HospitalName", bloodTransfusionNotificationVO.HospitalName);
-                        placeholders.Add("BloodType", bloodTransfusionNotificationVO.BloodType.ToString());
-                        placeholders.Add("RHFactor", bloodTransfusionNotificationVO.RHFactor.ToString());
-                        placeholders.Add("Quantity", bloodTransfusionNotificationVO.QuantityML.ToString());
-                        placeholders.Add("Status", bloodTransfusionNotificationVO.Status);
-                    }
-                    else
-                    {
-                        placeholders.Add("HeaderColor", _refusedColor);
-                        placeholders.Add("HeaderTitle", _refusedHeader);
-                        placeholders.Add("StatusBgColor", _refusedStatusBgColor);
-                        placeholders.Add("StatusTextColor", _refusedStatusTextColor);
-                        placeholders.Add("StatusBorderColor", _refusedStatusBorderColor);
-                        placeholders.Add("StatusMessage", _refusedStatusMessage);
-                        placeholders.Add("AdditionalMessage", _refusedAdditionalMessage);
-                        placeholders.Add("HospitalName", bloodTransfusionNotificationVO.HospitalName);
-                        placeholders.Add("BloodType", bloodTransfusionNotificationVO.BloodType.ToString());
-                        placeholders.Add("RHFactor", bloodTransfusionNotificationVO.RHFactor.ToString());
-                        placeholders.Add("Quantity", bloodTransfusionNotificationVO.QuantityML.ToString());
-                        placeholders.Add("Status", bloodTransfusionNotificationVO.Status);
-                    }
+                        { "HeaderTitle", emailConfig[0] },
+                        { "HeaderColor", emailConfig[1] },
+                        { "StatusBgColor", emailConfig[2] },
+                        { "StatusTextColor", emailConfig[3] },
+                        { "StatusBorderColor", emailConfig[4] },
+                        { "StatusMessage", emailConfig[5] },
+                        { "AdditionalMessage", emailConfig[6] },
+                        { "HospitalName", bloodTransfusionNotificationVO.HospitalName },
+                        { "BloodType", bloodTransfusionNotificationVO.BloodType.ToString() },
+                        { "RHFactor", bloodTransfusionNotificationVO.RHFactor.ToString() },
+                        { "Quantity", bloodTransfusionNotificationVO.QuantityML.ToString() },
+                        { "Status", bloodTransfusionNotificationVO.Status }
+                    };
 
                     try
                     {
@@ -108,13 +85,23 @@ namespace DoaMais.HospitalNotificationService
                             "Notificação da Solicitação de Sangue | DoaMais",
                             _normalizedPath,
                             placeholders
-                            );
+                        );
 
-                        _logger.LogInformation($"[HospitalWorker] - Hospital {bloodTransfusionNotificationVO.HospitalId} notificado sobre status da solicitação de transfusão!");
+                        _logger.LogInformation($"[HospitalWorker] - Hospital {bloodTransfusionNotificationVO.HospitalId} notificado com sucesso!");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError($"[HospitalWorker] - Erro ao notificar hospital {bloodTransfusionNotificationVO.HospitalId}: {ex.Message}");
+
+                        // Republicando a mensagem na fila para tentar enviar novamente
+                        await _messageBus.PublishDirectMessageAsync(
+                            _hospitalNotificationExchangeName,
+                            _hospitalNotificationQueueName,
+                            _hospitalNotificationRoutingKeyName,
+                            bloodTransfusionNotificationVO
+                        );
+
+                        _logger.LogInformation($"[HospitalWorker] - Mensagem reenviada para a fila para nova tentativa.");
                     }
 
                 }, stoppingToken);
