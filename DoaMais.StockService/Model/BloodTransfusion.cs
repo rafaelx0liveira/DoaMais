@@ -1,8 +1,8 @@
-﻿using DoaMais.HospitalNotificationService.Model.Base;
-using DoaMais.HospitalNotificationService.Model.Enums;
+﻿using DoaMais.StockService.Model.Base;
+using DoaMais.StockService.Model.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DoaMais.HospitalNotificationService.Model
+namespace DoaMais.StockService.Model
 {
     public class BloodTransfusion : BaseEntity
     {

@@ -1,6 +1,11 @@
-﻿using DoaMais.HospitalNotificationService.Model.Base;
+﻿using DoaMais.StockService.Model.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DoaMais.HospitalNotificationService.Model
+namespace DoaMais.StockService.Model
 {
     public class Hospital : BaseEntity
     {

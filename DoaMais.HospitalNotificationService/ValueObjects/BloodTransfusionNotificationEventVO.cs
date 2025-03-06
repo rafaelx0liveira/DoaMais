@@ -1,5 +1,4 @@
-﻿
-using DoaMais.HospitalNotificationService.Model.Enums;
+﻿using DoaMais.HospitalNotificationService.ValueObjects.Enums;
 using System.Text.Json.Serialization;
 
 namespace DoaMais.HospitalNotificationService.ValueObjects

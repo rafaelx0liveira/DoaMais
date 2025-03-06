@@ -81,6 +81,20 @@ namespace DoaMais.Infrastructure.Context
                     v => (BiologicalSex)Enum.Parse(typeof(BiologicalSex), v)
                 );
 
+            modelBuilder.Entity<BloodTransfusion>()
+                .Property(d => d.BloodType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
+                );
+
+            modelBuilder.Entity<BloodTransfusion>()
+                .Property(d => d.RHFactor)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
+                );
+
             modelBuilder.Entity<Employee>()
                 .Property(d => d.Role)
                 .HasConversion(

@@ -1,6 +1,7 @@
-﻿using DoaMais.HospitalNotificationService.Model;
+﻿using DoaMais.StockService.Model;
+using DoaMais.StockService.ValueObject;
 
-namespace DoaMais.HospitalNotificationService.Repository.Interface
+namespace DoaMais.StockService.Repository.Interface
 {
     public interface IBloodTransfusionRepository
     {
@@ -8,7 +9,7 @@ namespace DoaMais.HospitalNotificationService.Repository.Interface
 
         Task<BloodTransfusion?> GetBloodTransfusionByIdAsync(Guid id);
 
-        Task AddBloodTransfusionAsync(BloodTransfusion bloodTransfusion);
+        Task AddBloodTransfusionAsync(BloodTransfusionVO bloodTransfusionVO);
 
         Task UpdateBloodTransfusionAsync(BloodTransfusion bloodTransfusion);
     }

@@ -7,7 +7,6 @@ namespace DoaMais.HospitalNotificationService
     public class HospitalWorker : BackgroundService
     {
         private readonly ISendEmailService _sendEmailService;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<HospitalWorker> _logger;
         private readonly IConfiguration _configuration;
         private readonly IMessageBus _messageBus;
@@ -23,14 +22,12 @@ namespace DoaMais.HospitalNotificationService
 
         public HospitalWorker(
             ILogger<HospitalWorker> logger,
-            IServiceScopeFactory scopeFactory,
             IConfiguration configuration,
             IMessageBus messageBus,
             ISendEmailService sendEmailService)
         {
             _logger = logger;
             _messageBus = messageBus;
-            _scopeFactory = scopeFactory;
             _configuration = configuration;
             _sendEmailService = sendEmailService;
 

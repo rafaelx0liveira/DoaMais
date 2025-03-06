@@ -1,9 +1,10 @@
-﻿using DoaMais.HospitalNotificationService.Model;
-using DoaMais.HospitalNotificationService.Model.Context;
-using DoaMais.HospitalNotificationService.Repository.Interface;
+﻿using DoaMais.StockService.Model;
+using DoaMais.StockService.Model.Context;
+using DoaMais.StockService.Repository.Interface;
+using DoaMais.StockService.ValueObject;
 using Microsoft.EntityFrameworkCore;
 
-namespace DoaMais.HospitalNotificationService.Repository
+namespace DoaMais.StockService.Repository
 {
     public class BloodTransfusionRepository(SQLServerContext sqlServerContext) : IBloodTransfusionRepository
     {
@@ -19,11 +20,21 @@ namespace DoaMais.HospitalNotificationService.Repository
             return await _sqlServerContext.BloodTransfusions.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task AddBloodTransfusionAsync(BloodTransfusion bloodTransfusion)
+        public async Task AddBloodTransfusionAsync(BloodTransfusionVO bloodTransfusionVO)
         {
+            var bloodTransfusion = new BloodTransfusion
+            {
+                HospitalId = bloodTransfusionVO.HospitalId,
+                QuantityML = bloodTransfusionVO.QuantityML,
+                BloodType = bloodTransfusionVO.BloodType,
+                RHFactor = bloodTransfusionVO.RHFactor,
+                TransfusionDate = bloodTransfusionVO.TransfusionDate
+            };
+
             await _sqlServerContext.BloodTransfusions.AddAsync(bloodTransfusion);
             await _sqlServerContext.SaveChangesAsync();
         }
+
 
         public async Task UpdateBloodTransfusionAsync(BloodTransfusion bloodTransfusion)
         {

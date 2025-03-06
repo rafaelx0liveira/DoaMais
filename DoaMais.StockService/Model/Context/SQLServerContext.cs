@@ -9,6 +9,7 @@ namespace DoaMais.StockService.Model.Context
 
         public DbSet<BloodStock> BloodStocks { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<BloodTransfusion> BloodTransfusions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +32,20 @@ namespace DoaMais.StockService.Model.Context
                 );
 
             modelBuilder.Entity<BloodStock>()
+                .Property(bs => bs.RHFactor)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (RHFactor)Enum.Parse(typeof(RHFactor), v)
+                );
+
+            modelBuilder.Entity<BloodTransfusion>()
+                .Property(bs => bs.BloodType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (BloodType)Enum.Parse(typeof(BloodType), v)
+                );
+
+            modelBuilder.Entity<BloodTransfusion>()
                 .Property(bs => bs.RHFactor)
                 .HasConversion(
                     v => v.ToString(),

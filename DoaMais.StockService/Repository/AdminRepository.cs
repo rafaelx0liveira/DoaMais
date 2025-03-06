@@ -1,5 +1,4 @@
 ﻿using DoaMais.StockService.DTOs;
-using DoaMais.StockService.Model;
 using DoaMais.StockService.Model.Context;
 using DoaMais.StockService.Repository.Interface;
 using Microsoft.EntityFrameworkCore;

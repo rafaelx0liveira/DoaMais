@@ -16,6 +16,7 @@ builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("R
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
 builder.Services.AddScoped<IBloodStockRepository, BloodStockRepository>();
+builder.Services.AddScoped<IBloodTransfusionRepository, BloodTransfusionRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 builder.Services.AddDbContext<SQLServerContext>(opt =>

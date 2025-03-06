@@ -2,6 +2,7 @@ using DoaMais.StockService.Model;
 using DoaMais.StockService.Repository.Interface;
 using DoaMais.MessageBus.Interface;
 using DoaMais.StockService.DTOs;
+using DoaMais.StockService.ValueObject;
 
 namespace DoaMais.StockService
 {
@@ -112,6 +113,7 @@ namespace DoaMais.StockService
 
             var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
             var stockRepository = scope.ServiceProvider.GetRequiredService<IBloodStockRepository>();
+            var bloodTransfusionRepository = scope.ServiceProvider.GetRequiredService<IBloodTransfusionRepository>();
             var adminRepository = scope.ServiceProvider.GetRequiredService<IAdminRepository>();
 
             var stock = await stockRepository.GetBloodByRHAndTypeAsync(transfusionEventDTO.BloodType, transfusionEventDTO.RHFactor);
@@ -159,6 +161,17 @@ namespace DoaMais.StockService
                 transfusionEventDTO.QuantityML,
                 "Confirmada"
             );
+
+            _logger.LogInformation($"[StockWorker] - Persistindo transfusão de sangue.");
+
+            var bloodTransfusion = new BloodTransfusionVO(
+                transfusionEventDTO.HospitalId,
+                transfusionEventDTO.QuantityML,
+                transfusionEventDTO.BloodType,
+                transfusionEventDTO.RHFactor
+            );
+
+            await bloodTransfusionRepository.AddBloodTransfusionAsync(bloodTransfusion);
 
             _logger.LogInformation($"[StockWorker] - Notificando hospital {transfusionEventDTO.HospitalId} sobre a conclusão da transfusão.");
             await messageBus.PublishDirectMessageAsync(_hospitalNotificationExchangeName, _hospitalNotificationQueueName, _hospitalNotificationRoutingKeyName, successNotification);
