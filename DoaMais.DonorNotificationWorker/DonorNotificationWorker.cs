@@ -35,7 +35,7 @@ namespace DoaMais.DonorNotificationService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("[DonorNotificationService] - Rodando e ouvindo RabbitMQ...");
+            _logger.LogInformation("[DonorNotificationWorker] - Rodando e ouvindo RabbitMQ...");
 
             await _messageBus.ConsumeDirectMessagesAsync<DonationRegisteredEventVO>(
                 _donorNotificationExchangeName, 
@@ -43,7 +43,7 @@ namespace DoaMais.DonorNotificationService
                 _donorNotificationRoutingKeyName,
                 async (donationEvent) =>
                 {
-                    _logger.LogInformation($"[DonorNotificationService] - Enviando email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                    _logger.LogInformation($"[DonorNotificationWorker] - Enviando email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
 
                     Dictionary<string, string> placeholders = new Dictionary<string, string>
                     {
@@ -63,11 +63,11 @@ namespace DoaMais.DonorNotificationService
                             placeholders
                         );
 
-                        _logger.LogInformation($"[DonorNotificationService] - Enviado email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.LogInformation($"[DonorNotificationWorker] - Enviado email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"[DonorNotificationService] - Erro ao enviar email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.LogInformation($"[DonorNotificationWorker] - Erro ao enviar email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
                     }
                 }, stoppingToken);
         }

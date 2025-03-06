@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifica��o de Transfus�o de Sangue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: {{HeaderColor}};
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .status-box {
+            background-color: {{StatusBgColor}};
+            color: {{StatusTextColor}};
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 15px;
+            text-align: center;
+            border: 1px solid {{StatusBorderColor}};
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {{HeaderTitle}}
+        </div>
+        <div class="content">
+            <p>Olá, <strong>{{HospitalName}}</strong>.</p>
+            <p>Sua solicitação de transfusão foi processada.</p>
+            <div class="status-box">
+                <p><strong>Detalhes da Solicitação:</strong></p>
+                <p><strong>Tipo Sanguíneo:</strong> {{BloodType}} {{RHFactor}}</p>
+                <p><strong>Quantidade:</strong> {{Quantity}} ml</p>
+                <p><strong>Status:</strong> {{StatusMessage}}</p>
+            </div>
+            <p>{{AdditionalMessage}}</p>
+        </div>
+        <div class="footer">
+            <p>Obrigado por confiar na DoaMais!</p>
+            <p><em>Equipe DoaMais</em></p>
+        </div>
+    </div>
+</body>
+</html>

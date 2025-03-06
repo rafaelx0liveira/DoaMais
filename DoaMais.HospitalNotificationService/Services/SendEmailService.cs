@@ -1,10 +1,10 @@
-﻿using DoaMais.LowStockAlertService.Services.Interface;
+﻿using DoaMais.HospitalNotificationService.Services.Interface;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Text;
 using System.Web;
 
-namespace DoaMais.LowStockAlertService.Services
+namespace DoaMais.HospitalNotificationService.Services
 {
     public class SendEmailService : ISendEmailService
     {

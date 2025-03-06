@@ -1,25 +1,25 @@
-﻿using DoaMais.StockService.Model.Enums;
+﻿
+using DoaMais.HospitalNotificationService.Model.Enums;
 using System.Text.Json.Serialization;
 
-namespace DoaMais.StockService.DTOs
+namespace DoaMais.HospitalNotificationService.ValueObjects
 {
-    public class BloodTransfusionNotificationEventDTO
+    public class BloodTransfusionNotificationEventVO
     {
-        public Guid HospitalId { get; set; } 
-
+        public Guid HospitalId { get; set; }
         public string HospitalName { get; set; }
         public string HospitalEmail { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public BloodType BloodType { get; set; } 
+        public BloodType BloodType { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public RHFactor RHFactor { get; set; } 
-        public int QuantityML { get; set; } 
-        public string Status { get; set; } 
+        public RHFactor RHFactor { get; set; }
+        public int QuantityML { get; set; }
+        public string Status { get; set; }
         public DateTime TransfusionDate { get; set; }
 
-        public BloodTransfusionNotificationEventDTO(Guid hospitalId, string hospitalName, string hospitalEmail, BloodType bloodType, RHFactor rhFactor, int quantityML, string status)
+        public BloodTransfusionNotificationEventVO(Guid hospitalId, string hospitalName, string hospitalEmail, BloodType bloodType, RHFactor rhFactor, int quantityML, string status)
         {
             HospitalId = hospitalId;
             HospitalName = hospitalName;
@@ -31,5 +31,4 @@ namespace DoaMais.StockService.DTOs
             TransfusionDate = DateTime.UtcNow;
         }
     }
-
 }

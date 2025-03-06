@@ -40,6 +40,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoaMais.DonorNotificationSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoaMais.LowStockAlertService", "DoaMais.LowStockAlertService\DoaMais.LowStockAlertService.csproj", "{A21D71A1-B35C-4F49-9170-2D98AA730A1F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HospitalNotificationService", "HospitalNotificationService", "{3729AF35-EFD9-40E5-AFC4-5868DD3CA3EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoaMais.HospitalNotificationService", "DoaMais.HospitalNotificationService\DoaMais.HospitalNotificationService.csproj", "{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +90,10 @@ Global
 		{A21D71A1-B35C-4F49-9170-2D98AA730A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A21D71A1-B35C-4F49-9170-2D98AA730A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A21D71A1-B35C-4F49-9170-2D98AA730A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,5 +109,6 @@ Global
 		{E7141618-2036-4374-B234-73C4D43E7252} = {6A3BA90F-1A95-46AA-BA45-88611EF3FAF8}
 		{654FF799-375F-4016-AE4D-B0227EEE7254} = {22B62A14-DD40-4AA5-88F7-C61AA712B02E}
 		{A21D71A1-B35C-4F49-9170-2D98AA730A1F} = {6BEF54F0-4C93-4EE9-92CF-06D2D0760867}
+		{5D9B782A-71B7-4A7A-8C0A-4A710A1DF641} = {3729AF35-EFD9-40E5-AFC4-5868DD3CA3EB}
 	EndGlobalSection
 EndGlobal

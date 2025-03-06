@@ -1,11 +1,6 @@
-﻿using DoaMais.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DoaMais.HospitalNotificationService.Model;
 
-namespace DoaMais.Domain.Interfaces.Repository.BloodTransfusionRepository
+namespace DoaMais.HospitalNotificationService.Repository.Interface
 {
     public interface IBloodTransfusionRepository
     {

@@ -27,6 +27,8 @@ namespace DoaMais.Application.Handlers.BloodTransfusionCommandHandler.CreateBloo
 
             var transfusionRequestEventDTO = new BloodTransfusionRequestedEventDTO(
                 hospital.Id,
+                hospital.Name,
+                hospital.Email,
                 request.QuantityML,
                 request.BloodType,
                 request.RHFactor

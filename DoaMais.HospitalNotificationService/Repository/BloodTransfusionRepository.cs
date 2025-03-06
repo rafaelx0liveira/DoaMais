@@ -1,9 +1,9 @@
-﻿using DoaMais.Domain.Entities;
-using DoaMais.Domain.Interfaces.Repository.BloodTransfusionRepository;
-using DoaMais.Infrastructure.Context;
+﻿using DoaMais.HospitalNotificationService.Model;
+using DoaMais.HospitalNotificationService.Model.Context;
+using DoaMais.HospitalNotificationService.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace DoaMais.Infrastructure.Repositories.BloodTransfusionRepository
+namespace DoaMais.HospitalNotificationService.Repository
 {
     public class BloodTransfusionRepository(SQLServerContext sqlServerContext) : IBloodTransfusionRepository
     {

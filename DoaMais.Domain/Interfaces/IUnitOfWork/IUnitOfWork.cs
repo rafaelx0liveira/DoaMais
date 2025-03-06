@@ -1,5 +1,4 @@
 ﻿using DoaMais.Domain.Interfaces.Repository.AddressRepository;
-using DoaMais.Domain.Interfaces.Repository.BloodTransfusionRepository;
 using DoaMais.Domain.Interfaces.Repository.DonationRepository;
 using DoaMais.Domain.Interfaces.Repository.DonorRepository;
 using DoaMais.Domain.Interfaces.Repository.EmployeeRepository;
@@ -14,7 +13,6 @@ namespace DoaMais.Domain.Interfaces.IUnitOfWork
         IAddressRepository Address { get; }
         IDonationRepository Donation { get; }
         IHospitalRepository Hospital { get; }
-        IBloodTransfusionRepository BloodTransfusion { get; }
 
         Task<int> CompleteAsync();
         Task BeginTransactionAsync();
