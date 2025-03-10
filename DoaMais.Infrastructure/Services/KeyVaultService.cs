@@ -1,5 +1,6 @@
 ﻿using DoaMais.Application.Interface;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using VaultSharp;
 using VaultSharp.V1.AuthMethods.Token;
 
@@ -9,11 +10,17 @@ namespace DoaMais.Infrastructure.Services
     {
         private readonly IVaultClient _vaultClient;
         private readonly Dictionary<string, string> _secretsCache = new();
+        private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
         public KeyVaultService(IConfiguration configuration)
         {
-            var vaultAddres = configuration["KeyVault:Address"];
-            var vaultToken = configuration["KeyVault:Token"];
+            _logger = Log.ForContext<KeyVaultService>();
+
+            _configuration = configuration;
+
+            var vaultAddres = _configuration["KeyVault:Address"] ?? throw new ArgumentNullException("Address for KeyVault not found.");
+            var vaultToken = _configuration["KeyVault:Token"] ?? throw new ArgumentNullException("Token for KeyVault not found.");
 
             var authMethod = new TokenAuthMethodInfo(vaultToken);
             var vaultClientSettings = new VaultClientSettings(vaultAddres, authMethod);
@@ -27,18 +34,19 @@ namespace DoaMais.Infrastructure.Services
         {
             try
             {
-                //Console.WriteLine("🔄 Carregando segredos do Vault...");
+                _logger.Information("[KeyVaultService] - Carregando segredos do Vault...");
 
-                var mountPoint = "secret"; 
-                var basePath = "doamais"; 
+                var mountPoint = _configuration["KeyVault:MountPoint"] ?? throw new ArgumentNullException("MountPoint for KeyVault not found."); 
+                var basePath = _configuration["KeyVault:BasePath"] ?? throw new ArgumentNullException("BasePath for KeyVault not found.");
 
                 await LoadSecretsRecursively(basePath, mountPoint);
 
-                //Console.WriteLine("✅ Todos os segredos foram carregados com sucesso.");
+                _logger.Information("[KeyVaultService] - Todos os segredos foram carregados com sucesso.");
             }
             catch (VaultSharp.Core.VaultApiException ex)
             {
-                //Console.WriteLine($"❌ Erro ao carregar segredos do Vault: {ex.Message}");
+                _logger.Error($"[KeyVaultService] - Erro ao carregar segredos do Vault: {ex.Message}");
+
                 _secretsCache.Clear();
             }
         }
@@ -75,7 +83,7 @@ namespace DoaMais.Infrastructure.Services
             }
             catch (VaultSharp.Core.VaultApiException ex)
             {
-                //Console.WriteLine($"⚠ Erro ao carregar segredos em '{currentPath}': {ex.Message}");
+                _logger.Error($"[KeyVaultService] - Erro ao carregar segredos em '{currentPath}': {ex.Message}");
             }
         }
 

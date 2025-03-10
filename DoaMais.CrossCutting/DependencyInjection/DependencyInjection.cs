@@ -21,7 +21,6 @@ using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
 using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
 using DoaMais.Infrastructure.Repositories.HospitalRepository;
-using Microsoft.Extensions.Options;
 using DoaMais.Infrastructure.Services;
 using DoaMais.MessageBus.Configuration;
 using DoaMais.Application.Interface;
