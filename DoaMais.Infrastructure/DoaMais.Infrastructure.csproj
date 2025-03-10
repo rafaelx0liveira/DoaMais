@@ -18,9 +18,9 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	  <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
+	  <PackageReference Include="VaultSharp" Version="1.17.5.1" />
     <Folder Include="Messaging\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DoaMais.Application\DoaMais.Application.csproj" />

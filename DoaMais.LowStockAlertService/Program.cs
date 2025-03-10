@@ -1,15 +1,15 @@
 using DoaMais.LowStockAlertService;
-using DoaMais.MessageBus.Configuration;
 using System.Net.Mail;
 using System.Net;
 using DoaMais.LowStockAlertService.Services.Interface;
 using DoaMais.LowStockAlertService.Services;
 using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
+//using DoaMais.MessageBus.Configuration.Interface;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+//builder.Services.Configure<IRabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<ISendEmailService, SendEmailService>();
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 

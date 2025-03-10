@@ -1,4 +1,5 @@
-﻿using DoaMais.Application.Services.Interface;
+﻿using DoaMais.Application.Interface;
+using DoaMais.Application.Services.Interface;
 using DoaMais.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -8,13 +9,17 @@ using System.Text;
 
 namespace DoaMais.Application.Services.AuthService
 {
-    public class TokenService(IConfiguration configuration) : ITokenService
+    public class TokenService(IConfiguration configuration, IKeyVaultService keyVault) : ITokenService
     {
         private readonly IConfiguration _configuration = configuration;
+        private readonly IKeyVaultService _keyVault = keyVault;
 
         public string GenerateToken(Employee user)
         {
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]) ?? throw new Exception();
+            var jwtSecret = _configuration["KeyVaultSecrets:JwtSecret"] ?? throw new Exception();
+            var secret = _keyVault.GetSecret(jwtSecret);
+
+            var key = Encoding.ASCII.GetBytes(secret);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var tokenDescriptor = new SecurityTokenDescriptor

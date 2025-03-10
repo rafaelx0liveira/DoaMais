@@ -1,5 +1,5 @@
 using DoaMais.MessageBus;
-using DoaMais.MessageBus.Configuration;
+//using DoaMais.MessageBus.Configuration.Interface;
 using DoaMais.MessageBus.Interface;
 using DoaMais.StockService;
 using DoaMais.StockService.Model.Context;
@@ -12,7 +12,7 @@ builder.Services.AddHostedService<StockWorker>();
 
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
 
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+//builder.Services.Configure<IRabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
 builder.Services.AddScoped<IBloodStockRepository, BloodStockRepository>();

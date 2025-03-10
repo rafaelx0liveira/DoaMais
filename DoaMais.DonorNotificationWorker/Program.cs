@@ -2,14 +2,14 @@ using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
 using System.Net.Mail;
 using System.Net;
-using DoaMais.MessageBus.Configuration;
 using DoaMais.DonorNotificationService.Services;
 using DoaMais.DonorNotificationService.Services.Interface;
 using DoaMais.DonorNotificationService;
+//using DoaMais.MessageBus.Configuration.Interface;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+//builder.Services.Configure<IRabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 
 builder.Configuration.AddEnvironmentVariables(prefix: "SENDGRID_");
 builder.Services.AddSingleton<ISendEmailService, SendEmailService>();

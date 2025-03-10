@@ -1,5 +1,4 @@
 using DoaMais.HospitalNotificationService;
-using DoaMais.MessageBus.Configuration;
 using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,7 @@ using System.Net.Mail;
 using System.Net;
 using DoaMais.HospitalNotificationService.Services.Interface;
 using DoaMais.HospitalNotificationService.Services;
+//using DoaMais.MessageBus.Configuration.Interface;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<HospitalWorker>();
@@ -26,7 +26,7 @@ builder.Services.AddScoped<SmtpClient>(provider =>
 
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
 
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+//builder.Services.Configure<IRabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 builder.Services.AddSingleton<ISendEmailService, SendEmailService>();

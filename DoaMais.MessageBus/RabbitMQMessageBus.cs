@@ -16,9 +16,9 @@ namespace DoaMais.MessageBus
         private readonly string _userName;
         private readonly string _password;
 
-        public RabbitMQMessageBus(IOptions<RabbitMQSettings> options)
+        public RabbitMQMessageBus(RabbitMQSettings settings)
         {
-            var settings = options.Value;
+            if(settings == null) throw new ArgumentNullException(nameof(settings));
 
             _hostName = settings.HostName ?? throw new ArgumentNullException(nameof(settings.HostName), "RabbitMQ HostName is missing");
             _userName = settings.UserName ?? throw new ArgumentNullException(nameof(settings.UserName), "RabbitMQ UserName is missing");

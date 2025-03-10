@@ -17,11 +17,14 @@ using DoaMais.Domain.Interfaces.IUnitOfWork;
 using DoaMais.Application.Services.AuthService;
 using DoaMais.Domain.Interfaces.Repository.DonationRepository;
 using DoaMais.Infrastructure.Repositories.DonationRepository;
-using DoaMais.MessageBus.Configuration;
 using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
 using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
 using DoaMais.Infrastructure.Repositories.HospitalRepository;
+using Microsoft.Extensions.Options;
+using DoaMais.Infrastructure.Services;
+using DoaMais.MessageBus.Configuration;
+using DoaMais.Application.Interface;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -32,6 +35,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
             IConfiguration configuration)
         {
             services
+                .AddVaultService(configuration)
                 .AddDatabase(configuration)
                 .AddRepositories()
                 .AddUnitOfWork()
@@ -45,15 +49,19 @@ namespace DoaMais.CrossCutting.DependencyInjection
 
         private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("SqlServer");
-
-            services.AddDbContext<SQLServerContext>(opt =>
+            services.AddDbContext<SQLServerContext>((provider, options) =>
             {
-                opt.UseSqlServer(connectionString);
+                var vaultService = provider.GetRequiredService<IKeyVaultService>();
+
+                var connectionStringKey = configuration["KeyVaultSecrets:Database:ConnectionString"] ?? throw new ArgumentNullException("ConnectionString is missing in Vault");
+                var connectionString = vaultService.GetSecret(connectionStringKey);
+
+                options.UseSqlServer(connectionString);
             });
 
             return services;
         }
+
 
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
@@ -91,15 +99,40 @@ namespace DoaMais.CrossCutting.DependencyInjection
 
         private static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
         {
-            // Configuring options for RabbitMQ
-            services
-                .Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
+            services.AddSingleton<RabbitMQSettings>(provider =>
+            {
+                var vaultService = provider.GetRequiredService<IKeyVaultService>();
 
-            // Registering RabbitMQMessageBus as a Singleton for the entire aplication
-            services
-                .AddSingleton<IMessageBus, RabbitMQMessageBus>();
+                // Pegando as secrets do Vault com base no appsettings.json
+                var rabbitHost = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:HostName"])
+                    ?? throw new ArgumentNullException("RabbitMQ HostName is missing");
+
+                var rabbitPassword = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:Password"])
+                    ?? throw new ArgumentNullException("RabbitMQ Password is missing");
+
+                var rabbitUserName = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:UserName"])
+                    ?? throw new ArgumentNullException("RabbitMQ UserName is missing");
+
+                return new RabbitMQSettings
+                {
+                    HostName = rabbitHost,
+                    Password = rabbitPassword,
+                    UserName = rabbitUserName
+                };
+            });
+
+            services.AddSingleton<IMessageBus>(provider =>
+            {
+                var settings = provider.GetRequiredService<RabbitMQSettings>();
+                return new RabbitMQMessageBus(settings);
+            });
 
             return services;
+        }
+
+        private static IServiceCollection AddVaultService(this IServiceCollection services, IConfiguration configuration) 
+        {
+            return services.AddSingleton<IKeyVaultService, KeyVaultService>();
         }
     }
 
