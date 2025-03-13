@@ -1,4 +1,3 @@
-using DoaMais.Application.Interface;
 using DoaMais.CrossCutting.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -6,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using VaultService.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,7 +80,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-    .Configure<IKeyVaultService>((options, vaultService) =>
+    .Configure<IVaultClient>((options, vaultService) =>
     {
         var jwtSecretKey = builder.Configuration["KeyVaultSecrets:JwtSecret"] ?? throw new ArgumentNullException("JwtSecret is missing in Vault");
         var jwtSecret = vaultService.GetSecret(jwtSecretKey);

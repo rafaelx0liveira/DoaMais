@@ -21,9 +21,9 @@ using DoaMais.MessageBus.Interface;
 using DoaMais.MessageBus;
 using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
 using DoaMais.Infrastructure.Repositories.HospitalRepository;
-using DoaMais.Infrastructure.Services;
 using DoaMais.MessageBus.Configuration;
-using DoaMais.Application.Interface;
+using VaultService.Extensions;
+using VaultService.Interface;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -50,7 +50,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
         {
             services.AddDbContext<SQLServerContext>((provider, options) =>
             {
-                var vaultService = provider.GetRequiredService<IKeyVaultService>();
+                var vaultService = provider.GetRequiredService<IVaultClient>();
 
                 var connectionStringKey = configuration["KeyVaultSecrets:Database:ConnectionString"] ?? throw new ArgumentNullException("ConnectionString is missing in Vault");
                 var connectionString = vaultService.GetSecret(connectionStringKey);
@@ -100,7 +100,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
         {
             services.AddSingleton<RabbitMQSettings>(provider =>
             {
-                var vaultService = provider.GetRequiredService<IKeyVaultService>();
+                var vaultService = provider.GetRequiredService<IVaultClient>();
 
                 // Pegando as secrets do Vault com base no appsettings.json
                 var rabbitHost = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:HostName"])
@@ -131,7 +131,13 @@ namespace DoaMais.CrossCutting.DependencyInjection
 
         private static IServiceCollection AddVaultService(this IServiceCollection services, IConfiguration configuration) 
         {
-            return services.AddSingleton<IKeyVaultService, KeyVaultService>();
+            var vaultAddress = configuration["KeyVault:Address"] ?? throw new ArgumentNullException("KeyVault Address is missing"); ;
+            var vaultToken = configuration["KeyVault:Token"] ?? throw new ArgumentNullException("KeyVault Token is missing"); ;
+
+            return services.AddVaultService(
+                vaultAddress: vaultAddress,
+                vaultToken: vaultToken
+            );
         }
     }
 
