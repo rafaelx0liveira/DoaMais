@@ -1,11 +1,13 @@
 using DoaMais.LowStockAlertService.Services.Interface;
 using DoaMais.LowStockAlertService.ValueObject;
 using DoaMais.MessageBus.Interface;
+using VaultService.Interface;
 
 namespace DoaMais.LowStockAlertService
 {
     public class LowStockAlertWorker : BackgroundService
     {
+        private readonly IVaultClient _vaultClient;
         private readonly ILogger<LowStockAlertWorker> _logger;
         private readonly IConfiguration _configuration;
         private readonly ISendEmailService _sendEmailService;
@@ -18,11 +20,14 @@ namespace DoaMais.LowStockAlertService
         private readonly string _lowStockRoutingKeyName;
         private readonly string _lowStockExchangeName;
 
-        public LowStockAlertWorker(ILogger<LowStockAlertWorker> logger, 
+        public LowStockAlertWorker(
+            IVaultClient vaultClient,
+            ILogger<LowStockAlertWorker> logger, 
             ISendEmailService sendEmailService,
             IConfiguration configuration, 
             IMessageBus messageBus)
         {
+            _vaultClient = vaultClient;
             _logger = logger;
             _sendEmailService = sendEmailService;
             _configuration = configuration;
@@ -31,9 +36,14 @@ namespace DoaMais.LowStockAlertService
             _projectPath = Path.Combine(AppContext.BaseDirectory, "Templates/low_stock_template.html");
             _normalizedPath = Path.GetFullPath(_projectPath);
 
-            _lowStockQueueName = _configuration["RabbitMQ:LowStockAlertQueueName"] ?? throw new ArgumentNullException("LowStockAlertQueueName not found.");
-            _lowStockRoutingKeyName = _configuration["RabbitMQ:LowStockRoutingKeyName"] ?? throw new ArgumentNullException("LowStockRoutingKeyName not found.");
-            _lowStockExchangeName = _configuration["RabbitMQ:LowStockAlertExchangeName"] ?? throw new ArgumentNullException("LowStockAlertExchangeName not found.");
+            var lowStockQueueName = _configuration["KeyVaultSecrets:RabbitMQ:LowStockAlertQueue"] ?? throw new ArgumentNullException("LowStockAlertQueueName not found.");
+            _lowStockQueueName = _vaultClient.GetSecret(lowStockQueueName);
+
+            var lowStockRoutingKeyName = _configuration["KeyVaultSecrets:RabbitMQ:LowStockRoutingKey"] ?? throw new ArgumentNullException("LowStockRoutingKeyName not found.");
+            _lowStockRoutingKeyName = _vaultClient.GetSecret(lowStockRoutingKeyName);
+
+            var lowStockExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:LowStockAlertExchange"] ?? throw new ArgumentNullException("LowStockAlertExchangeName not found.");
+            _lowStockExchangeName = _vaultClient.GetSecret(lowStockExchangeName);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -67,7 +77,7 @@ namespace DoaMais.LowStockAlertService
                                 placeholders
                             );
 
-                            _logger.LogInformation($"[LowStockAlertWorker] - Enviado alerta para administrador {adminEmail}");
+                            _logger.LogInformation($"[LowStockAlertWorker] - Enviado alerta para administrador {adminEmail.ToString()}");
                         }
                         catch (Exception ex)
                         {
