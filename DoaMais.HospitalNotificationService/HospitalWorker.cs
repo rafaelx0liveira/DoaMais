@@ -1,11 +1,13 @@
 ﻿using DoaMais.HospitalNotificationService.Services.Interface;
 using DoaMais.HospitalNotificationService.ValueObjects;
 using DoaMais.MessageBus.Interface;
+using VaultService.Interface;
 
 namespace DoaMais.HospitalNotificationService
 {
     public class HospitalWorker : BackgroundService
     {
+        private readonly IVaultClient _vaultClient;
         private readonly ISendEmailService _sendEmailService;
         private readonly ILogger<HospitalWorker> _logger;
         private readonly IConfiguration _configuration;
@@ -21,19 +23,26 @@ namespace DoaMais.HospitalNotificationService
         private readonly Dictionary<string, string> _emailSettings = new();
 
         public HospitalWorker(
+            IVaultClient vaultClient,
             ILogger<HospitalWorker> logger,
             IConfiguration configuration,
             IMessageBus messageBus,
             ISendEmailService sendEmailService)
         {
+            _vaultClient = vaultClient;
             _logger = logger;
             _messageBus = messageBus;
             _configuration = configuration;
             _sendEmailService = sendEmailService;
 
-            _hospitalNotificationQueueName = _configuration["RabbitMQ:HospitalNotificationQueueName"] ?? throw new ArgumentNullException("HospitalNotificationQueueName not found.");
-            _hospitalNotificationRoutingKeyName = _configuration["RabbitMQ:HospitalNotificationRoutingKey"] ?? throw new ArgumentNullException("HospitalNotificationRoutingKey not found.");
-            _hospitalNotificationExchangeName = _configuration["RabbitMQ:HospitalNotificationExchangeName"] ?? throw new ArgumentNullException("HospitalNotificationExchangeName not found.");
+            var hospitalNotificationQueueName = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationQueue"] ?? throw new ArgumentNullException("HospitalNotificationQueueName not found.");
+            _hospitalNotificationQueueName = _vaultClient.GetSecret(hospitalNotificationQueueName);
+
+            var hospitalNotificationRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationRoutingKey"] ?? throw new ArgumentNullException("HospitalNotificationRoutingKey not found.");
+            _hospitalNotificationRoutingKeyName = _vaultClient.GetSecret(hospitalNotificationRoutingKey);
+
+            var hospitalNotificationExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationExchange"] ?? throw new ArgumentNullException("HospitalNotificationExchangeName not found.");
+            _hospitalNotificationExchangeName = _vaultClient.GetSecret(hospitalNotificationExchangeName);
 
             _projectPath = Path.Combine(AppContext.BaseDirectory, "Templates/hospital_notification_template.html");
             _normalizedPath = Path.GetFullPath(_projectPath);
