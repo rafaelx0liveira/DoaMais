@@ -1,19 +1,38 @@
-using DoaMais.MessageBus.Interface;
-using DoaMais.MessageBus;
 using System.Net.Mail;
 using System.Net;
 using DoaMais.DonorNotificationService.Services;
 using DoaMais.DonorNotificationService.Services.Interface;
 using DoaMais.DonorNotificationService;
-//using DoaMais.MessageBus.Configuration.Interface;
+using VaultService.Extensions;
+using DoaMais.MessageBus.Extensions;
+using VaultService.Interface;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-//builder.Services.Configure<IRabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+var vaultAddress = builder.Configuration["KeyVault:Address"] ?? throw new ArgumentNullException("KeyVault Address is missing in Vault");
+var vaultToken = builder.Configuration["KeyVault:Token"] ?? throw new ArgumentNullException("KeyVault Token is missing in Vault");
+
+builder.Services.AddVaultService(
+    vaultAddress: vaultAddress,
+    vaultToken: vaultToken
+);
+
+using var serviceProvider = builder.Services.BuildServiceProvider();
+var vaultService = serviceProvider.GetRequiredService<IVaultClient>();
+
+var rabbitHost = vaultService.GetSecret(builder.Configuration["KeyVaultSecrets:RabbitMQ:HostName"])
+    ?? throw new ArgumentNullException("RabbitMQ HostName is missing");
+
+var rabbitPassword = vaultService.GetSecret(builder.Configuration["KeyVaultSecrets:RabbitMQ:Password"])
+    ?? throw new ArgumentNullException("RabbitMQ Password is missing");
+
+var rabbitUserName = vaultService.GetSecret(builder.Configuration["KeyVaultSecrets:RabbitMQ:UserName"])
+    ?? throw new ArgumentNullException("RabbitMQ UserName is missing");
+
+builder.Services.AddRabbitMQ(rabbitHost, rabbitUserName, rabbitPassword);
 
 builder.Configuration.AddEnvironmentVariables(prefix: "SENDGRID_");
 builder.Services.AddSingleton<ISendEmailService, SendEmailService>();
-builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
 builder.Services.AddHostedService<DonorNotificationWorker>();
 
