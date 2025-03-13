@@ -47,11 +47,11 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
                 donation.Donor.RHFactor,
                 donation.QuantityML);
 
-            var donationQueueName = _vaultClient.GetSecret(_configuration["RabbitMQ:DonationQueueName"]) ?? throw new ArgumentNullException("DonationQueueName not found.");
+            var donationQueueName = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:DonationQueue"]) ?? throw new ArgumentNullException("DonationQueueName not found.");
 
-            var stockEventExchangeName = _vaultClient.GetSecret(_configuration["RabbitMQ:StockEventsExchangeName"]) ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            var stockEventExchangeName = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:StockEventsExchange"]) ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
 
-            var donationRoutingKey = _vaultClient.GetSecret(_configuration["RabbitMQ:DonationRoutingKey"]) ?? throw new ArgumentNullException("DonationRoutingKey not found.");
+            var donationRoutingKey = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:DonationRoutingKey"]) ?? throw new ArgumentNullException("DonationRoutingKey not found.");
 
             await _messageBus.PublishDirectMessageAsync(stockEventExchangeName, donationQueueName, donationRoutingKey, donationEvent);
 

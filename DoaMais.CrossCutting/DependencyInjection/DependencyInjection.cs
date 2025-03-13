@@ -24,6 +24,7 @@ using DoaMais.Infrastructure.Repositories.HospitalRepository;
 using DoaMais.MessageBus.Configuration;
 using VaultService.Extensions;
 using VaultService.Interface;
+using DoaMais.MessageBus.Extensions;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -98,33 +99,19 @@ namespace DoaMais.CrossCutting.DependencyInjection
 
         private static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<RabbitMQSettings>(provider =>
-            {
-                var vaultService = provider.GetRequiredService<IVaultClient>();
+            using var serviceProvider = services.BuildServiceProvider();
+            var vaultService = serviceProvider.GetRequiredService<IVaultClient>();
 
-                // Pegando as secrets do Vault com base no appsettings.json
-                var rabbitHost = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:HostName"])
-                    ?? throw new ArgumentNullException("RabbitMQ HostName is missing");
+            var rabbitHost = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:HostName"])
+                ?? throw new ArgumentNullException("RabbitMQ HostName is missing");
 
-                var rabbitPassword = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:Password"])
-                    ?? throw new ArgumentNullException("RabbitMQ Password is missing");
+            var rabbitPassword = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:Password"])
+                ?? throw new ArgumentNullException("RabbitMQ Password is missing");
 
-                var rabbitUserName = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:UserName"])
-                    ?? throw new ArgumentNullException("RabbitMQ UserName is missing");
+            var rabbitUserName = vaultService.GetSecret(configuration["KeyVaultSecrets:RabbitMQ:UserName"])
+                ?? throw new ArgumentNullException("RabbitMQ UserName is missing");
 
-                return new RabbitMQSettings
-                {
-                    HostName = rabbitHost,
-                    Password = rabbitPassword,
-                    UserName = rabbitUserName
-                };
-            });
-
-            services.AddSingleton<IMessageBus>(provider =>
-            {
-                var settings = provider.GetRequiredService<RabbitMQSettings>();
-                return new RabbitMQMessageBus(settings);
-            });
+            services.AddRabbitMQ(rabbitHost, rabbitUserName, rabbitPassword);
 
             return services;
         }

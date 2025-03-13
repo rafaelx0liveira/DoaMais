@@ -3,12 +3,14 @@ using DoaMais.StockService.Repository.Interface;
 using DoaMais.MessageBus.Interface;
 using DoaMais.StockService.DTOs;
 using DoaMais.StockService.ValueObject;
+using VaultService.Interface;
 
 namespace DoaMais.StockService
 {
     public class StockWorker : BackgroundService
     {
         private readonly IMessageBus _messageBus;
+        private readonly IVaultClient _vaultClient;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<StockWorker> _logger;
         private readonly IConfiguration _configuration;
@@ -37,32 +39,49 @@ namespace DoaMais.StockService
             IMessageBus messageBus,
             IServiceScopeFactory scopeFactory,
             ILogger<StockWorker> logger, 
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IVaultClient vaultClient)
         {
             _messageBus = messageBus;
+            _vaultClient = vaultClient;
             _scopeFactory = scopeFactory;
             _logger = logger;
             _configuration = configuration;
 
-            _stockEventsExchangeName = _configuration["RabbitMQ:StockEventsExchangeName"] ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            var stockEventsExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:StockEventsExchange"] ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            _stockEventsExchangeName = _vaultClient.GetSecret(stockEventsExchangeName);
 
-            _donationQueueName = _configuration["RabbitMQ:DonationQueueName"] ?? throw new ArgumentNullException("DonationQueueName not found.");
-            _donationRoutingKey = _configuration["RabbitMQ:DonationRoutingKey"] ?? throw new ArgumentNullException("DonationRoutingKey not found.");
+            var donationQueueName = _configuration["KeyVaultSecrets:RabbitMQ:DonationQueue"] ?? throw new ArgumentNullException("DonationQueueName not found.");
+            var donationRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:DonationRoutingKey"] ?? throw new ArgumentNullException("DonationRoutingKey not found.");
+            _donationQueueName = _vaultClient.GetSecret(donationQueueName);
+            _donationRoutingKey = _vaultClient.GetSecret(donationRoutingKey);
 
-            _transfusionQueueName = _configuration["RabbitMQ:TransfusionQueueName"] ?? throw new ArgumentNullException("TransfusionQueueName not found.");
-            _transfusionRoutingKey = _configuration["RabbitMQ:TransfusionRoutingKey"] ?? throw new ArgumentNullException("TransfusionRoutingKey not found.");
+            var transfusionQueueName = _configuration["KeyVaultSecrets:RabbitMQ:TransfusionQueue"] ?? throw new ArgumentNullException("TransfusionQueueName not found.");
+            var transfusionRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:TransfusionRoutingKey"] ?? throw new ArgumentNullException("TransfusionRoutingKey not found.");
+            _transfusionQueueName = _vaultClient.GetSecret(transfusionQueueName);
+            _transfusionRoutingKey = _vaultClient.GetSecret(transfusionRoutingKey);
 
-            _lowStockQueueName = _configuration["RabbitMQ:LowStockAlertQueueName"] ?? throw new ArgumentNullException("LowStockAlertQueueName not found.");
-            _lowStockRoutingKeyName = _configuration["RabbitMQ:LowStockRoutingKeyName"] ?? throw new ArgumentNullException("LowStockRoutingKeyName not found.");
-            _lowStockExchangeName = _configuration["RabbitMQ:LowStockAlertExchangeName"] ?? throw new ArgumentNullException("LowStockAlertExchangeName not found.");
+            var lowStockQueueName = _configuration["KeyVaultSecrets:RabbitMQ:LowStockAlertQueue"] ?? throw new ArgumentNullException("LowStockAlertQueueName not found.");
+            var lowStockRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:LowStockRoutingKey"] ?? throw new ArgumentNullException("LowStockRoutingKeyName not found.");
+            _lowStockQueueName = _vaultClient.GetSecret(lowStockQueueName);
+            _lowStockRoutingKeyName = _vaultClient.GetSecret(lowStockRoutingKey);
 
-            _donorNotificationQueueName = _configuration["RabbitMQ:DonorNotificationQueueName"] ?? throw new ArgumentNullException("DonorNotificationQueueName not found.");
-            _donorNotificationRoutingKeyName = _configuration["RabbitMQ:DonorNotificationRoutingKey"] ?? throw new ArgumentNullException("DonorNotificationRoutingKey not found.");
-            _donorNotificationExchangeName = _configuration["RabbitMQ:DonorNotificationExchangeName"] ?? throw new ArgumentNullException("DonorNotificationExchangeName not found.");
+            var lowStockExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:LowStockAlertExchange"] ?? throw new ArgumentNullException("LowStockAlertExchangeName not found.");
+            _lowStockExchangeName = _vaultClient.GetSecret(lowStockExchangeName);
 
-            _hospitalNotificationQueueName = _configuration["RabbitMQ:HospitalNotificationQueueName"] ?? throw new ArgumentNullException("HospitalNotificationQueueName not found.");
-            _hospitalNotificationRoutingKeyName = _configuration["RabbitMQ:HospitalNotificationRoutingKey"] ?? throw new ArgumentNullException("HospitalNotificationRoutingKey not found.");
-            _hospitalNotificationExchangeName = _configuration["RabbitMQ:HospitalNotificationExchangeName"] ?? throw new ArgumentNullException("HospitalNotificationExchangeName not found.");
+            var donorNotificationQueueName = _configuration["KeyVaultSecrets:RabbitMQ:DonorNotificationQueue"] ?? throw new ArgumentNullException("DonorNotificationQueueName not found.");
+            var donorNotificatioRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:DonorNotificationRoutingKey"] ?? throw new ArgumentNullException("DonorNotificationRoutingKey not found.");
+            var donorNotificationExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:DonorNotificationExchange"] ?? throw new ArgumentNullException("DonorNotificationExchangeName not found.");
+            _donorNotificationQueueName = _vaultClient.GetSecret(donorNotificationQueueName);
+            _donorNotificationRoutingKeyName = _vaultClient.GetSecret(donorNotificatioRoutingKey);
+            _donorNotificationExchangeName = _vaultClient.GetSecret(donorNotificationExchangeName);
+
+            var hospitalNotificationQueueName = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationQueue"] ?? throw new ArgumentNullException("HospitalNotificationQueueName not found.");
+            var hospitalNotificationRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationRoutingKey"] ?? throw new ArgumentNullException("HospitalNotificationRoutingKey not found.");
+            var hospitalNotificationExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:HospitalNotificationExchange"] ?? throw new ArgumentNullException("HospitalNotificationExchangeName not found.");
+            _hospitalNotificationQueueName = _vaultClient.GetSecret(hospitalNotificationQueueName);
+            _hospitalNotificationRoutingKeyName = _vaultClient.GetSecret(hospitalNotificationRoutingKey);
+            _hospitalNotificationExchangeName = _vaultClient.GetSecret(hospitalNotificationExchangeName);
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)

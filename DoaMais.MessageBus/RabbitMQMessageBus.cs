@@ -1,6 +1,5 @@
 ﻿using DoaMais.MessageBus.Configuration;
 using DoaMais.MessageBus.Interface;
-using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
