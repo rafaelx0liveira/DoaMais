@@ -3,13 +3,15 @@ using DoaMais.Application.Models;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Interfaces.IUnitOfWork;
 using MediatR;
+using Serilog;
 
 namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHandler
 {
-    public class CreateDonorCommandHandler(IUnitOfWork unitOfWork)
+    public class CreateDonorCommandHandler(IUnitOfWork unitOfWork, ILogger logger)
         : IRequestHandler<CreateDonorCommand, ResultViewModel<Guid>>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger _logger = logger;
 
         public async Task<ResultViewModel<Guid>> Handle(CreateDonorCommand request, CancellationToken cancellationToken)
         {
@@ -17,7 +19,11 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
             {
                 var donorExists = await _unitOfWork.Donors.DonorExistsAsync(request.Email);
 
-                if (donorExists) return ResultViewModel<Guid>.Error("Donor with this email already exists");
+                if (donorExists)
+                {
+                    _logger.Warning($"Donor with this email already exists: {request.Email}");
+                    return ResultViewModel<Guid>.Error("Donor with this email already exists");
+                }
 
                 var existingAddress = await _unitOfWork.Address.GetAddressPostalCodeAsync(request.Address.PostalCode);
 
@@ -55,10 +61,12 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
                 await _unitOfWork.Donors.AddDonorAsync(donor);
                 await _unitOfWork.CompleteAsync();
 
+                _logger.Information($"Donor {donor.Id} created successfully.");
                 return ResultViewModel<Guid>.Success(donor.Id);
             }
             catch (Exception ex)
             {
+                _logger.Warning($"An error occurred while creating the donor: {ex.Message}");
                 return ResultViewModel<Guid>.Error($"One or more errors occurred:{ex.Message}");
             }
         }

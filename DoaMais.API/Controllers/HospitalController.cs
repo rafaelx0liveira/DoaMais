@@ -3,6 +3,7 @@ using DoaMais.Application.Queries.HospitalQueries.GetAllHospitalsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.API.Controllers
 {
@@ -11,10 +12,11 @@ namespace DoaMais.API.Controllers
     /// </summary>
     [Route("api/hospital")]
     [ApiController]
-    public class HospitalController(IMediator mediator)
+    public class HospitalController(IMediator mediator, ILogger logger)
         : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
+        private readonly ILogger _logger = logger;
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -22,8 +24,13 @@ namespace DoaMais.API.Controllers
         {
             var result = await _mediator.Send(request);
 
-            if (!result.IsSuccess) return BadRequest(result);
+            if (!result.IsSuccess)
+            {
+                _logger.Warning($"Error creating hospital: {result.Message}");
+                return BadRequest(result);
+            }
 
+            _logger.Information($"Hospital created: {result.Data}");
             return Ok(result);
         }
 

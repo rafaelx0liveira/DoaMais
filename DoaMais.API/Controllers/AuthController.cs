@@ -1,7 +1,7 @@
 ﻿using DoaMais.Application.Commands.AuthCommands.LoginCommand;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.API.Controllers
 {
@@ -14,22 +14,22 @@ namespace DoaMais.API.Controllers
         : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly Serilog.ILogger _logger = logger;
+        private readonly ILogger _logger = logger;
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand request)
         {
-            _logger.Information("Tentativa de login para o e-mail: {Email}", request.Email);
+            _logger.Information($"Failed login attempt for email: {request.Email}");
 
             var result = await _mediator.Send(request);
 
             if (!result.IsSuccess)
             {
-                _logger.Warning("Falha no login para o e-mail: {Email}. Motivo: {Motivo}", request.Email, result.Message ?? "Erro desconhecido");
+                _logger.Warning($"Failed login attempt for email: {request.Email}. Reason: {result.Message}");
                 return Unauthorized(result);
             }
 
-            _logger.Information("Login bem-sucedido para o e-mail: {Email}", request.Email);
+            _logger.Information($"Successful login for email: {request.Email}");
             return Ok(result);
         }
     }
