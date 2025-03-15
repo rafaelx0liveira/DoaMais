@@ -2,12 +2,13 @@ using DoaMais.DonorNotificationService.Services.Interface;
 using DoaMais.DonorNotificationWorker.ValueObject;
 using DoaMais.MessageBus.Interface;
 using VaultService.Interface;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.DonorNotificationService
 {
     public class DonorNotificationWorker : BackgroundService
     {
-        private readonly ILogger<DonorNotificationWorker> _logger;
+        private readonly ILogger _logger;
         private readonly IVaultClient _vaultClient;
         private readonly IConfiguration _configuration;
         private readonly IMessageBus _messageBus;
@@ -20,7 +21,7 @@ namespace DoaMais.DonorNotificationService
         private readonly string _donorNotificationExchangeName;
         private readonly string _donorNotificationQueueName;
 
-        public DonorNotificationWorker(ILogger<DonorNotificationWorker> logger, IMessageBus messageBus , IConfiguration configuration, ISendEmailService sendEmailService, IVaultClient vaultClient)
+        public DonorNotificationWorker(ILogger logger, IMessageBus messageBus , IConfiguration configuration, ISendEmailService sendEmailService, IVaultClient vaultClient)
         {
             _logger = logger;
             _messageBus = messageBus;
@@ -43,7 +44,7 @@ namespace DoaMais.DonorNotificationService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("[DonorNotificationWorker] - Rodando e ouvindo RabbitMQ...");
+            _logger.Information("[DonorNotificationWorker] - Initiating RabbitMQ connection...");
 
             await _messageBus.ConsumeDirectMessagesAsync<DonationRegisteredEventVO>(
                 _donorNotificationExchangeName, 
@@ -51,7 +52,7 @@ namespace DoaMais.DonorNotificationService
                 _donorNotificationRoutingKeyName,
                 async (donationEvent) =>
                 {
-                    _logger.LogInformation($"[DonorNotificationWorker] - Enviando email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                    _logger.Information($"[DonorNotificationWorker] - Sending email to donor {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
 
                     Dictionary<string, string> placeholders = new Dictionary<string, string>
                     {
@@ -71,11 +72,11 @@ namespace DoaMais.DonorNotificationService
                             placeholders
                         );
 
-                        _logger.LogInformation($"[DonorNotificationWorker] - Enviado email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.Information($"[DonorNotificationWorker] - Successfull email sent to donor {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"[DonorNotificationWorker] - Erro ao enviar email para o doador {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}");
+                        _logger.Warning($"[DonorNotificationWorker] - Error to send email to donor {donationEvent.DonorEmail} - Id: {donationEvent.DonorId}. Error: {ex.Message}");
                     }
                 }, stoppingToken);
         }

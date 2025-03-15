@@ -4,6 +4,7 @@ using DoaMais.MessageBus.Interface;
 using DoaMais.StockService.DTOs;
 using DoaMais.StockService.ValueObject;
 using VaultService.Interface;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.StockService
 {
@@ -12,7 +13,7 @@ namespace DoaMais.StockService
         private readonly IMessageBus _messageBus;
         private readonly IVaultClient _vaultClient;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<StockWorker> _logger;
+        private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
 
         private readonly string _stockEventsExchangeName;
@@ -38,7 +39,7 @@ namespace DoaMais.StockService
         public StockWorker(
             IMessageBus messageBus,
             IServiceScopeFactory scopeFactory,
-            ILogger<StockWorker> logger, 
+            ILogger logger, 
             IConfiguration configuration,
             IVaultClient vaultClient)
         {
@@ -86,14 +87,14 @@ namespace DoaMais.StockService
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[StockWorker] - Iniciando...");
+            _logger.Information("[StockWorker] - Initiating RabbitMQ connection...");
 
             await base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("[StockWorker] - Rodando e ouvindo RabbitMQ...");
+            _logger.Information($"[StockWorker] - Running and listening RabbitMQ...");
 
             // Consumir mensagens da fila de doações
             _ = Task.Run(async () =>
@@ -126,7 +127,7 @@ namespace DoaMais.StockService
 
         private async Task ProcessTransfusion(BloodTransfusionRequestedEventDTO transfusionEventDTO, CancellationToken stoppingToken)
         {
-            _logger.LogInformation($"[StockWorker] - Processando transfusão para hospital {transfusionEventDTO.HospitalId}: {transfusionEventDTO.QuantityML}ml de {transfusionEventDTO.BloodType} {transfusionEventDTO.RHFactor}");
+            _logger.Information($"[StockWorker] - Processing transfusion for hospital {transfusionEventDTO.HospitalId}: {transfusionEventDTO.QuantityML}ml of {transfusionEventDTO.BloodType} {transfusionEventDTO.RHFactor}");
 
             using var scope = _scopeFactory.CreateScope();
 
@@ -139,12 +140,12 @@ namespace DoaMais.StockService
 
             if (stock == null || stock.QuantityML < transfusionEventDTO.QuantityML)
             {
-                _logger.LogWarning($"[StockWorker] - Estoque insuficiente para transfusão: disponível {stock?.QuantityML ?? 0}ml, solicitado {transfusionEventDTO.QuantityML}ml");
+                _logger.Warning("[StockWorker] - Stock is insufficient for transfusion: available {stock?.QuantityML ?? 0}ml, requested {transfusionEventDTO.QuantityML}ml");
 
                 var admins = await adminRepository.GetAdministratorsAsync();
                 var lowStockAlertDTO = new LowStockAlertEventDTO(transfusionEventDTO.BloodType, transfusionEventDTO.RHFactor, stock?.QuantityML ?? 0, admins);
 
-                _logger.LogInformation($"[StockWorker] - Publicando alerta de estoque baixo para administradores.");
+                _logger.Information($"[StockWorker] - Publish low stock alert message to administrators.");
                 await messageBus.PublishDirectMessageAsync(_lowStockExchangeName, _lowStockQueueName, _lowStockRoutingKeyName, lowStockAlertDTO);
 
                 // Notificar o hospital que a transfusão foi negada
@@ -158,7 +159,7 @@ namespace DoaMais.StockService
                     "Recusada"
                 );
 
-                _logger.LogInformation($"[StockWorker] - Notificando hospital {transfusionEventDTO.HospitalId} sobre falta de estoque.");
+                _logger.Information($"[StockWorker] - Notyfing hospital {transfusionEventDTO.HospitalId} about lack of stock.");
                 await messageBus.PublishDirectMessageAsync(_hospitalNotificationExchangeName, _hospitalNotificationQueueName, _hospitalNotificationRoutingKeyName, notification);
 
                 return;
@@ -168,7 +169,7 @@ namespace DoaMais.StockService
             stock.QuantityML -= transfusionEventDTO.QuantityML;
             await stockRepository.UpdateQuantityFromStockAsync(stock);
 
-            _logger.LogInformation($"[StockWorker] - Estoque atualizado após transfusão: {stock.QuantityML}ml restantes.");
+            _logger.Information($"[StockWorker] - Stock updated after transfusion: {stock.QuantityML}ml remaining.");
 
             // Notificar o hospital que a transfusão foi realizada com sucesso
             var successNotification = new BloodTransfusionNotificationEventDTO(
@@ -181,7 +182,7 @@ namespace DoaMais.StockService
                 "Confirmada"
             );
 
-            _logger.LogInformation($"[StockWorker] - Persistindo transfusão de sangue.");
+            _logger.Information($"[StockWorker] - Blood transfusion persisted.");
 
             var bloodTransfusion = new BloodTransfusionVO(
                 transfusionEventDTO.HospitalId,
@@ -192,13 +193,13 @@ namespace DoaMais.StockService
 
             await bloodTransfusionRepository.AddBloodTransfusionAsync(bloodTransfusion);
 
-            _logger.LogInformation($"[StockWorker] - Notificando hospital {transfusionEventDTO.HospitalId} sobre a conclusão da transfusão.");
+            _logger.Information($"[StockWorker] - Notifying hospital {transfusionEventDTO.HospitalId} about the successful transfusion.");
             await messageBus.PublishDirectMessageAsync(_hospitalNotificationExchangeName, _hospitalNotificationQueueName, _hospitalNotificationRoutingKeyName, successNotification);
         }
 
         private async Task ProcessDonation(DonationRegisteredEventDTO donationEventDTO, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"[StockWorker] - Processando doação: Doador: {donationEventDTO.DonorId} - {donationEventDTO.Quantity}ml de {donationEventDTO.BloodType} - {donationEventDTO.RHFactor}");
+            _logger.Information($"[StockWorker] - Processing donation: Donor: {donationEventDTO.DonorId} - {donationEventDTO.Quantity}ml of {donationEventDTO.BloodType} - {donationEventDTO.RHFactor}");
 
             using var scope = _scopeFactory.CreateScope();
 
@@ -223,10 +224,10 @@ namespace DoaMais.StockService
                 await stockRepository.UpdateQuantityFromStockAsync(stock);
             }
 
-            _logger.LogInformation($"[StockWorker] - Publicando mensagem de notificação para o doador {donationEventDTO.DonorId} com o comprovante de doação!");
+            _logger.Information($"[StockWorker] - Publish donation notification message to donor {donationEventDTO.DonorId} with donation receipt.");
             await messageBus.PublishDirectMessageAsync(_donorNotificationExchangeName, _donorNotificationQueueName, _donorNotificationRoutingKeyName, donationEventDTO);
 
-            _logger.LogInformation("[StockWorker] Estoque atualizado com sucesso!");
+            _logger.Information($"[StockWorker] - Blood stock updated: {stock.QuantityML}ml");
         }
     }
 

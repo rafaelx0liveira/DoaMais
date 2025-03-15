@@ -2,13 +2,14 @@ using DoaMais.LowStockAlertService.Services.Interface;
 using DoaMais.LowStockAlertService.ValueObject;
 using DoaMais.MessageBus.Interface;
 using VaultService.Interface;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.LowStockAlertService
 {
     public class LowStockAlertWorker : BackgroundService
     {
         private readonly IVaultClient _vaultClient;
-        private readonly ILogger<LowStockAlertWorker> _logger;
+        private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly ISendEmailService _sendEmailService;
         private readonly IMessageBus _messageBus;
@@ -22,7 +23,7 @@ namespace DoaMais.LowStockAlertService
 
         public LowStockAlertWorker(
             IVaultClient vaultClient,
-            ILogger<LowStockAlertWorker> logger, 
+            ILogger logger, 
             ISendEmailService sendEmailService,
             IConfiguration configuration, 
             IMessageBus messageBus)
@@ -48,7 +49,7 @@ namespace DoaMais.LowStockAlertService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("[LowStockAlertWorker] - Rodando e ouvindo RabbitMQ...");
+            _logger.Information("[LowStockAlertWorker] - Initiating RabbitMQ connection...");
 
             await _messageBus.ConsumeDirectMessagesAsync<LowStockAlertEventVO>(
                 _lowStockExchangeName,
@@ -56,7 +57,7 @@ namespace DoaMais.LowStockAlertService
                 _lowStockRoutingKeyName,
                 async (lowStockEvent) =>
                 {
-                    _logger.LogInformation($"[LowStockAlertWorker] - Estoque crítico para {lowStockEvent.BloodType} {lowStockEvent.RHFactor}: {lowStockEvent.QuantityML} ml.");
+                    _logger.Information($"[LowStockAlertWorker] - Critic stock alert for {lowStockEvent.BloodType} {lowStockEvent.RHFactor}: {lowStockEvent.QuantityML} ml.");
 
                     foreach (var adminEmail in lowStockEvent.AdminEmails)
                     {
@@ -77,11 +78,11 @@ namespace DoaMais.LowStockAlertService
                                 placeholders
                             );
 
-                            _logger.LogInformation($"[LowStockAlertWorker] - Enviado alerta para administrador {adminEmail.ToString()}");
+                            _logger.Information($"[LowStockAlertWorker] - Send email to administrator {adminEmail.ToString()}");
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError($"[LowStockAlertWorker] - Erro ao enviar alerta para administrador {adminEmail}: {ex.Message}");
+                            _logger.Warning($"[LowStockAlertWorker] - Error to send email to administrator {adminEmail.ToString()}. Error: {ex.Message}");
                         }
                     }
                 },

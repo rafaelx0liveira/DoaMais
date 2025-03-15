@@ -2,6 +2,7 @@
 using DoaMais.MessageBus.Interface;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Serilog;
 using System.Text;
 using System.Text.Json;
 
@@ -14,10 +15,17 @@ namespace DoaMais.MessageBus
         private readonly string _hostName;
         private readonly string _userName;
         private readonly string _password;
+        private readonly ILogger _logger;
 
-        public RabbitMQMessageBus(RabbitMQSettings settings)
+        public RabbitMQMessageBus(RabbitMQSettings settings, ILogger logger)
         {
-            if(settings == null) throw new ArgumentNullException(nameof(settings));
+            _logger = logger;
+
+            if(settings == null)
+            {
+                _logger.Error("[RabbitMQMessageBus] - HostName, UserName and Password are required. Unable to connect to RabbitMQ.");
+                throw new ArgumentNullException(nameof(settings));
+            }
 
             _hostName = settings.HostName ?? throw new ArgumentNullException(nameof(settings.HostName), "RabbitMQ HostName is missing");
             _userName = settings.UserName ?? throw new ArgumentNullException(nameof(settings.UserName), "RabbitMQ UserName is missing");
@@ -28,6 +36,7 @@ namespace DoaMais.MessageBus
         {
             if (!await ConnectionExistsAsync())
             {
+                _logger.Error("[RabbitMQMessageBus] - Error connecting to RabbitMQ. Connection is null.");
                 throw new InvalidOperationException("Error connecting to RabbitMQ.");
             }
 
@@ -55,6 +64,8 @@ namespace DoaMais.MessageBus
                 exchange: exchangeName,
                 routingKey: "");
 
+            _logger.Information($"[RabbitMQMessageBus] - Publishing message to Exchange: {exchangeName}");
+
             byte[] body = GetMessageAsByteArray(message);
 
             await _channel.BasicPublishAsync(
@@ -62,12 +73,15 @@ namespace DoaMais.MessageBus
                 routingKey: "",
                 mandatory: false,
                 body: body);
+
+            _logger.Information($"[RabbitMQMessageBus] - Message published to Exchange: {exchangeName}");
         }
 
         public async Task ConsumeFanoutMessagesAsync<T>(string exchangeName, string queueName, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
         {
             if (!await ConnectionExistsAsync())
             {
+                _logger.Error("[RabbitMQMessageBus] - Error connecting to RabbitMQ. Connection is null.");
                 throw new InvalidOperationException("Error connecting to RabbitMQ.");
             }
 
@@ -96,6 +110,8 @@ namespace DoaMais.MessageBus
             // Faz o bind da fila ao Exchange Fanout
             await _channel.QueueBindAsync(queue: queueName, exchange: exchangeName, routingKey: "", cancellationToken: cancellationToken);
 
+            _logger.Information($"[RabbitMQMessageBus] - Consuming messages from Exchange: {exchangeName}");
+
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (model, ea) =>
             {
@@ -113,8 +129,11 @@ namespace DoaMais.MessageBus
                     await messageHandler(deserializedMessage);
                 }
 
+                _logger.Information($"[RabbitMQMessageBus] - Message consumed from Exchange: {exchangeName}");
                 await _channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
             };
+
+            _logger.Information($"[RabbitMQMessageBus] - Consuming messages from Queue: {queueName}");
 
             await _channel.BasicConsumeAsync(
                 queue: queueName,
@@ -129,10 +148,13 @@ namespace DoaMais.MessageBus
         {
             if (!await ConnectionExistsAsync())
             {
+                _logger.Error("[RabbitMQMessageBus] - Error connecting to RabbitMQ. Connection is null.");
                 throw new InvalidOperationException("Error connecting to RabbitMQ.");
             }
 
             _channel ??= await _connection!.CreateChannelAsync();
+
+            _logger.Information($"[RabbitMQMessageBus] - Publishing message to Exchange: {exchangeName}");
 
             // Criar Exchange Direct
             await _channel.ExchangeDeclareAsync(
@@ -163,16 +185,21 @@ namespace DoaMais.MessageBus
                 routingKey: routingKey, // Routing Key é importante no Direct
                 mandatory: false,
                 body: body);
+
+            _logger.Information($"[RabbitMQMessageBus] - Message published to Exchange: {exchangeName}");
         }
 
         public async Task ConsumeDirectMessagesAsync<T>(string exchangeName, string queueName, string routingKey, Func<T, Task> messageHandler, CancellationToken cancellationToken = default)
         {
             if (!await ConnectionExistsAsync())
             {
+                _logger.Error("[RabbitMQMessageBus] - Error connecting to RabbitMQ. Connection is null.");
                 throw new InvalidOperationException("Error connecting to RabbitMQ.");
             }
 
             _channel ??= await _connection!.CreateChannelAsync();
+
+            _logger.Information($"[RabbitMQMessageBus] - Consuming messages from Exchange: {exchangeName}");
 
             // Criar Exchange Direct
             await _channel.ExchangeDeclareAsync(
@@ -214,8 +241,12 @@ namespace DoaMais.MessageBus
                     await messageHandler(deserializedMessage);
                 }
 
+                _logger.Information($"[RabbitMQMessageBus] - Message consumed from Exchange: {exchangeName}");
+
                 await _channel.BasicAckAsync(ea.DeliveryTag, false, cancellationToken);
             };
+
+            _logger.Information($"[RabbitMQMessageBus] - Consuming messages from Queue: {queueName}");
 
             await _channel.BasicConsumeAsync(
                 queue: queueName,
@@ -237,6 +268,8 @@ namespace DoaMais.MessageBus
         {
             try
             {
+                _logger.Information("[RabbitMQMessageBus] - Creating connection to RabbitMQ...");
+
                 var factory = new ConnectionFactory
                 {
                     HostName = _hostName,
@@ -245,17 +278,23 @@ namespace DoaMais.MessageBus
                 };
 
                 _connection = await factory.CreateConnectionAsync();
+
+                _logger.Information("[RabbitMQMessageBus] - Connection to RabbitMQ created.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error connecting to RabbitMQ: {ex.Message}");
-                throw;
+                _logger.Error("[RabbitMQMessageBus] - Error connecting to RabbitMQ: {Message}", ex.Message);
+                throw new InvalidOperationException("Error connecting to RabbitMQ.", ex);
             }
         }
 
         private async Task<bool> ConnectionExistsAsync()
         {
-            if (_connection is { IsOpen: true }) return true;
+            if (_connection is { IsOpen: true })
+            {
+                _logger.Information("[RabbitMQMessageBus] - Connection to RabbitMQ already exists.");
+                return true;
+            }
 
             await CreateConnectionAsync();
             return _connection is { IsOpen: true };

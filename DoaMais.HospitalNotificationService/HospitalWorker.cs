@@ -2,6 +2,7 @@
 using DoaMais.HospitalNotificationService.ValueObjects;
 using DoaMais.MessageBus.Interface;
 using VaultService.Interface;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.HospitalNotificationService
 {
@@ -9,7 +10,7 @@ namespace DoaMais.HospitalNotificationService
     {
         private readonly IVaultClient _vaultClient;
         private readonly ISendEmailService _sendEmailService;
-        private readonly ILogger<HospitalWorker> _logger;
+        private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IMessageBus _messageBus;
 
@@ -24,7 +25,7 @@ namespace DoaMais.HospitalNotificationService
 
         public HospitalWorker(
             IVaultClient vaultClient,
-            ILogger<HospitalWorker> logger,
+            ILogger logger,
             IConfiguration configuration,
             IMessageBus messageBus,
             ISendEmailService sendEmailService)
@@ -54,7 +55,7 @@ namespace DoaMais.HospitalNotificationService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("[HospitalWorker] - Rodando e ouvindo RabbitMQ...");
+            _logger.Information("[HospitalWorker] - Initiating RabbitMQ connection...");
 
             await _messageBus.ConsumeDirectMessagesAsync<BloodTransfusionNotificationEventVO>(
                 _hospitalNotificationExchangeName,
@@ -62,7 +63,7 @@ namespace DoaMais.HospitalNotificationService
                 _hospitalNotificationRoutingKeyName,
                 async (bloodTransfusionNotificationVO) =>
                 {
-                    _logger.LogInformation($"[HospitalWorker] - Notificando hospital {bloodTransfusionNotificationVO.HospitalId} sobre status da solicitação de transfusão.");
+                    _logger.Information($"[HospitalWorker] - Notifying hospital {bloodTransfusionNotificationVO.HospitalId} about blood transfusion request status.");
 
                     // Obter configurações de email conforme o status da solicitação
                     string statusKey = bloodTransfusionNotificationVO.Status.Equals("Confirmada") ? "Confirmada" : "Recusada";
@@ -93,11 +94,11 @@ namespace DoaMais.HospitalNotificationService
                             placeholders
                         );
 
-                        _logger.LogInformation($"[HospitalWorker] - Hospital {bloodTransfusionNotificationVO.HospitalId} notificado com sucesso!");
+                        _logger.Information($"[HospitalWorker] - Hospital {bloodTransfusionNotificationVO.HospitalId} successfully notified!");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"[HospitalWorker] - Erro ao notificar hospital {bloodTransfusionNotificationVO.HospitalId}: {ex.Message}");
+                        _logger.Warning($"[HospitalWorker] - Error to send email to hospital {bloodTransfusionNotificationVO.HospitalId}. Error: {ex.Message}");
 
                         // Republicando a mensagem na fila para tentar enviar novamente
                         await _messageBus.PublishDirectMessageAsync(
@@ -107,7 +108,7 @@ namespace DoaMais.HospitalNotificationService
                             bloodTransfusionNotificationVO
                         );
 
-                        _logger.LogInformation($"[HospitalWorker] - Mensagem reenviada para a fila para nova tentativa.");
+                        _logger.Information($"[HospitalWorker] - Message republished to queue for new attempt.");
                     }
 
                 }, stoppingToken);

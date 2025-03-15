@@ -1,14 +1,15 @@
 ﻿using DoaMais.ReportService.Services.Interface;
+using ILogger = Serilog.ILogger;
 
 namespace DoaMais.ReportService
 {
     public class ReportWorker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<ReportWorker> _logger;
-        private readonly TimeSpan _intervaloExecucao = TimeSpan.FromDays(30); // A cada 30 dias
+        private readonly ILogger _logger;
+        private readonly TimeSpan _executionInterval = TimeSpan.FromDays(30);
 
-        public ReportWorker(IServiceProvider serviceProvider, ILogger<ReportWorker> logger)
+        public ReportWorker(IServiceProvider serviceProvider, ILogger logger)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -22,25 +23,24 @@ namespace DoaMais.ReportService
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
+                        _logger.Information($"[ReportWorker] - Initiating automatic report generation at {DateTime.Now}...");
                         var reportService = scope.ServiceProvider.GetRequiredService<IReportService>();
-                        _logger.LogInformation("[ReportWorker] - Iniciando geração automática de relatórios...");
 
-                        _logger.LogInformation("[ReportWorker] - Gerando relatório de estoque de sangue...");
+                        _logger.Information("[ReportWorker] - Generating blood stock report...");
                         await reportService.GenerateBloodStockReport();
 
-                        _logger.LogInformation("[ReportWorker] - Gerando relatório de doações nos últimos 30 dias...");
+                        _logger.Information("[ReportWorker] - Generating donations report that occurred in the last 30 days...");
                         await reportService.GenerateDonationsReport();
 
-                        _logger.LogInformation("[ReportWorker] - Relatórios gerados com sucesso!");
+                        _logger.Information($"[ReportWorker] - Automatic report generation completed at {DateTime.Now}.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"[ReportWorker] - Erro ao gerar os relatórios: {ex.Message}");
+                    _logger.Error($"[ReportWorker] - Error generating reports: {ex.Message}");
                 }
 
-                // Espera 30 dias antes de rodar novamente
-                await Task.Delay(_intervaloExecucao, stoppingToken);
+                await Task.Delay(_executionInterval, stoppingToken);
             }
         }
     }
