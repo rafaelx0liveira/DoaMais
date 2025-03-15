@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
     <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
-    <PackageReference Include="VaultService" Version="0.1.4" />
+    <PackageReference Include="VaultService" Version="0.1.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DoaMais.Domain\DoaMais.Domain.csproj" />

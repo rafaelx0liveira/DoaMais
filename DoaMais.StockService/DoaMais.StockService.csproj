@@ -23,7 +23,7 @@
 	  <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.1" />
     <PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
-	<PackageReference Include="VaultService" Version="0.1.4" />
+	<PackageReference Include="VaultService" Version="0.1.5" />
   </ItemGroup>
 
   <ItemGroup>

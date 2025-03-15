@@ -33,6 +33,7 @@
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
+	  <PackageReference Include="VaultService" Version="0.1.5" />
 	  <PackageReference Include="VaultSharp" Version="1.17.5.1" />
   </ItemGroup>
 
