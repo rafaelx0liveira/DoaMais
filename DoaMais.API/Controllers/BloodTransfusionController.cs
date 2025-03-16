@@ -1,4 +1,5 @@
 ﻿using DoaMais.Application.Commands.BloodTransfusionCommands.CreateBloodTransfusionCommand;
+using DoaMais.Application.Queries.BloodTransfusionsQueries.GetAllBloodTransfusionsQuery;
 using DoaMais.Application.Queries.EmployeesQueries.GetAllEmployeesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,18 +41,9 @@ namespace DoaMais.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
-            string userId = User?.Identity?.Name ?? "Unknown";
-            string correlationId = HttpContext.TraceIdentifier;
+            var bloodTransfusions = await _mediator.Send(new GetAllBloodTransfusionsQuery());
 
-            var employees = await _mediator.Send(new GetAllEmployeesQuery());
-
-            if (!employees.IsSuccess) {
-                _logger.Warning($"Failed to get employees list | User: {userId} | CorrelationId: {correlationId}");
-                return BadRequest(employees);
-            }
-
-            _logger.Information($"Employees list retrieved | User: {userId} | CorrelationId: {correlationId}");
-            return Ok(employees);
+            return Ok(bloodTransfusions);
         }
     }
 }

@@ -45,6 +45,7 @@ namespace DoaMais.Infrastructure.Repositories.DonationRepository
         {
             return await _context.Donations
                 .Include(d => d.Donor)
+                    .ThenInclude(d => d.Address)
                 .Where(d => d.DonorId == id)
                 .OrderByDescending(d => d.DonationDate)
                 .FirstOrDefaultAsync();

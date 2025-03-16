@@ -1,4 +1,5 @@
-﻿using DoaMais.Domain.Entities;
+﻿using DoaMais.Application.DTOs;
+using DoaMais.Domain.Entities;
 
 namespace DoaMais.Application.Models
 {
@@ -29,7 +30,15 @@ namespace DoaMais.Application.Models
                     Id = donation.DonorId,
                     Name = donation.Donor.Name,
                     Email = donation.Donor.Email,
+                    Address = new Address
+                    {
+                        StreetAddress = donation.Donor.Address.StreetAddress,
+                        City = donation.Donor.Address.City,
+                        State = donation.Donor.Address.State,
+                        PostalCode = donation.Donor.Address.PostalCode
+                    }
                 }
+              
             );
         }
     }
