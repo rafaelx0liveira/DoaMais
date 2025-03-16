@@ -14,8 +14,6 @@ using VaultService.Interface;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-using var serviceProvider = builder.Services.BuildServiceProvider();
-var vaultService = serviceProvider.GetRequiredService<IVaultClient>();
 
 var vaultAddress = builder.Configuration["KeyVault:Address"] ?? throw new ArgumentNullException("KeyVault Address is missing in Vault");
 var vaultToken = builder.Configuration["KeyVault:Token"] ?? throw new ArgumentNullException("KeyVault Token is missing in Vault");
@@ -24,6 +22,9 @@ builder.Services.AddVaultService(
     vaultAddress: vaultAddress,
     vaultToken: vaultToken
 );
+
+using var serviceProvider = builder.Services.BuildServiceProvider();
+var vaultService = serviceProvider.GetRequiredService<IVaultClient>();
 
 var connectionStringKey = builder.Configuration["KeyVaultSecrets:Database:ConnectionString"] ?? throw new ArgumentNullException("ConnectionString is missing in Vault");
 var connectionString = vaultService.GetSecret(connectionStringKey);
