@@ -36,19 +36,19 @@ namespace DoaMais.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpGet("last/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetLastDonation([FromQuery] Guid donorId)
+        public async Task<IActionResult> GetLastDonation([FromRoute] Guid id)
         {
-            var result = await _mediator.Send(new GetLastDonationQuery(donorId));
+            var result = await _mediator.Send(new GetLastDonationQuery(id));
 
             if (!result.IsSuccess)
             {
-                _logger.Warning($"Failed to get last donation for donor: {donorId}. Reason: {result.Message}");
+                _logger.Warning($"Failed to get last donation for donor: {id}. Reason: {result.Message}");
                 return BadRequest(result.Message); 
             }
 
-            _logger.Information($"Last donation retrieved for donor: {donorId}");
+            _logger.Information($"Last donation retrieved for donor: {id}");
             return Ok(result);
         }
     }
