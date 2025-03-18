@@ -1,3 +1,4 @@
+using DoaMais.API.Middlewares;
 using DoaMais.CrossCutting.DependencyInjection;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Serilog.Sinks;
@@ -162,6 +163,8 @@ app.UseHttpsRedirection();
 // Middleware de autenticação e autorização
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<RequestTimingMiddleware>();
 
 // Mapeia os controladores da API
 app.MapControllers();
