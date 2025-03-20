@@ -33,7 +33,7 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
             if (donor == null)
             {
                 _logger.Warning($"Donor with Id {request.DonorId} was not found.");
-                ResultViewModel<Guid>.Error($"Donor with Id {request.DonorId} was not found.");
+                return ResultViewModel<Guid>.Error($"Donor with Id {request.DonorId} was not found.");
             }
 
             var lastDonation = await _unitOfWork.Donation.GetLastDonationAsync(request.DonorId);
@@ -57,13 +57,16 @@ namespace DoaMais.Application.Handlers.DonationCommandHandler.CreateDonationComm
                 donation.Donor.RHFactor,
                 donation.QuantityML);
 
-            var donationQueueName = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:DonationQueue"]) ?? throw new ArgumentNullException("DonationQueueName not found.");
+            var donationQueueName = _configuration["KeyVaultSecrets:RabbitMQ:DonationQueue"] ?? throw new ArgumentNullException("DonationQueueName not found.");
+            var donationQueueNameSecret = _vaultClient.GetSecret(donationQueueName);
 
-            var stockEventExchangeName = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:StockEventsExchange"]) ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            var stockExchangeName = _configuration["KeyVaultSecrets:RabbitMQ:StockEventsExchange"] ?? throw new ArgumentNullException("StockEventsExchangeName not found.");
+            var stockEventExchangeNameSecret = _vaultClient.GetSecret(stockExchangeName);
 
-            var donationRoutingKey = _vaultClient.GetSecret(_configuration["KeyVaultSecrets:RabbitMQ:DonationRoutingKey"]) ?? throw new ArgumentNullException("DonationRoutingKey not found.");
+            var donationRoutingKey = _configuration["KeyVaultSecrets:RabbitMQ:DonationRoutingKey"] ?? throw new ArgumentNullException("DonationRoutingKey not found.");
+            var donationRoutingKeySecret = _vaultClient.GetSecret(donationRoutingKey);
 
-            await _messageBus.PublishDirectMessageAsync(stockEventExchangeName, donationQueueName, donationRoutingKey, donationEvent);
+            await _messageBus.PublishDirectMessageAsync(stockEventExchangeNameSecret, donationQueueNameSecret, donationRoutingKeySecret, donationEvent);
             _logger.Information($"Donation request sent to StockService. The donation receipt will be sent by email to the donor.");
 
             return ResultViewModel<Guid>.Success(donation.Id);

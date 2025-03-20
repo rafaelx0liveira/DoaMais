@@ -5,7 +5,7 @@ using MediatR;
 
 namespace DoaMais.Application.Handlers.BloodTransfusionQueryHandler.GetAllBloodTransfusionsQueryHandler
 {
-    class GetAllBloodTransfusionsQueryHandler(IUnitOfWork unitOfWork)
+    public class GetAllBloodTransfusionsQueryHandler(IUnitOfWork unitOfWork)
         : IRequestHandler<GetAllBloodTransfusionsQuery, ResultViewModel<IEnumerable<BloodTransfusionViewModel>>>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
