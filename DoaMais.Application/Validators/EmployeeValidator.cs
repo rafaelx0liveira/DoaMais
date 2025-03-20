@@ -24,6 +24,11 @@ namespace DoaMais.Application.Validators
             RuleFor(x => x.Role)
                 .IsInEnum()
                 .WithMessage($"Invalid role. Allowed values: {string.Join(", ", Enum.GetNames(typeof(EmployeeRole)))}.");
+
+            RuleFor(x => x.Address)
+                .NotNull()
+                .WithMessage("Address is required.")
+                .SetValidator(new AddressValidator());
         }
     }
 }

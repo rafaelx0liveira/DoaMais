@@ -31,6 +31,10 @@ namespace DoaMais.Application.Validators
 
             RuleFor(x => x.RhFactor)
                 .IsInEnum().WithMessage($"Invalid rh factor. Available options: {string.Join(", ", Enum.GetNames(typeof(RHFactor)))}.");
+
+            RuleFor(x => x.Address)
+                .NotNull().WithMessage("Address is required.")
+                .SetValidator(new AddressValidator());
         }
     }
 }

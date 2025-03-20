@@ -3,7 +3,7 @@ using DoaMais.Domain.Entities.Enums;
 
 namespace DoaMais.Application.Models
 {
-    class BloodTransfusionViewModel
+    public class BloodTransfusionViewModel
     {
         public Guid BloodTransfusionId { get; set; }
         public Hospital Hospital { get; set; }
