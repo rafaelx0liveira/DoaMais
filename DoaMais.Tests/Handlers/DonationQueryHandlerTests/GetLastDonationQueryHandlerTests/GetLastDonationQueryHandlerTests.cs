@@ -2,7 +2,6 @@
 using DoaMais.Application.Queries.DonationQueries.GetLastDonationQuery;
 using DoaMais.Domain.Entities;
 using DoaMais.Domain.Interfaces.IUnitOfWork;
-using DoaMais.Domain.Interfaces.Repository.DonationRepository;
 using DoaMais.Tests.Utils;
 using Moq;
 

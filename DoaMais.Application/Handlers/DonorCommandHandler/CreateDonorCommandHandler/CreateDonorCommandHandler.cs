@@ -58,11 +58,11 @@ namespace DoaMais.Application.Handlers.DonorCommandHandler.CreateDonorCommandHan
                     Address = null
                 };
 
-                await _unitOfWork.Donors.AddDonorAsync(donor);
+                var donorId = await _unitOfWork.Donors.AddDonorAsync(donor);
                 await _unitOfWork.CompleteAsync();
 
-                _logger.Information($"Donor {donor.Id} created successfully.");
-                return ResultViewModel<Guid>.Success(donor.Id);
+                _logger.Information($"Donor {donorId} created successfully.");
+                return ResultViewModel<Guid>.Success(donorId);
             }
             catch (Exception ex)
             {
