@@ -24,6 +24,8 @@ using VaultService.Interface;
 using DoaMais.MessageBus.Extensions;
 using DoaMais.Domain.Interfaces.Repository.BloodTransfusionRepository;
 using DoaMais.Infrastructure.Repositories.BloodTransfusionRepository;
+using DoaMais.Domain.Interfaces.Repository.ReportRepository;
+using DoaMais.Infrastructure.Repositories.ReportRepository;
 
 namespace DoaMais.CrossCutting.DependencyInjection
 {
@@ -70,6 +72,7 @@ namespace DoaMais.CrossCutting.DependencyInjection
             services.AddScoped<IDonationRepository, DonationRepository>();
             services.AddScoped<IHospitalRepository, HospitalRepository>();
             services.AddScoped<IBloodTransfusionRepository, BloodTransfusionRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
 
             return services;
         }
