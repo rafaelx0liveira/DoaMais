@@ -23,16 +23,16 @@ namespace DoaMais.ReportService
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
-                        _logger.Information($"[ReportWorker] - Initiating automatic report generation at {DateTime.Now}...");
+                        _logger.Information($"[ReportWorker] - Initiating automatic report generation at {DateTime.UtcNow.AddHours(-3)}...");
                         var reportService = scope.ServiceProvider.GetRequiredService<IReportService>();
 
                         _logger.Information("[ReportWorker] - Generating blood stock report...");
-                        await reportService.GenerateBloodStockReport();
+                        await reportService.GenerateAndSaveBloodStockReport();
 
                         _logger.Information("[ReportWorker] - Generating donations report that occurred in the last 30 days...");
-                        await reportService.GenerateDonationsReport();
+                        await reportService.GenerateAndSaveDonationsReport();
 
-                        _logger.Information($"[ReportWorker] - Automatic report generation completed at {DateTime.Now}.");
+                        _logger.Information($"[ReportWorker] - Automatic report generation completed at {DateTime.UtcNow.AddHours(-3)}.");
                     }
                 }
                 catch (Exception ex)

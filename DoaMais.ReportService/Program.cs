@@ -31,6 +31,7 @@ var connectionString = vaultService.GetSecret(connectionStringKey);
 
 builder.Services.AddScoped<IBloodStockRepository, BloodStockRepository>();
 builder.Services.AddScoped<IDonationRepository, DonationRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 builder.Services.AddScoped<IReportService, ReportService>();
 

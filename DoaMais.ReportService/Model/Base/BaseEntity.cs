@@ -6,7 +6,7 @@ namespace DoaMais.ReportService.Model.Base
     public class BaseEntity
     {
         [Key]
-        [Column("id")]
+        [Column("Id")]
         public Guid Id { get; set; }
     }
 }

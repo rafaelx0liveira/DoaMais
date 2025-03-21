@@ -13,6 +13,8 @@ namespace DoaMais.ReportService.Repository
         {
             return await _context.Donations
                 .Where(d => d.DonationDate >= startDate && d.DonationDate <= endDate)
+                .Include(d => d.Donor)
+                .AsNoTracking()
                 .ToListAsync();
         }
     }
