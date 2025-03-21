@@ -5,6 +5,7 @@ using DoaMais.Domain.Interfaces.Repository.DonationRepository;
 using DoaMais.Domain.Interfaces.Repository.DonorRepository;
 using DoaMais.Domain.Interfaces.Repository.EmployeeRepository;
 using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
+using DoaMais.Domain.Interfaces.Repository.ReportRepository;
 using DoaMais.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -18,8 +19,9 @@ namespace DoaMais.Infrastructure.Persistence
         IAddressRepository addressRepository,
         IDonationRepository donationRepository,
         IHospitalRepository hospitalRepository,
-        IBloodTransfusionRepository bloodTransfusionRepository
-    ): IUnitOfWork
+        IBloodTransfusionRepository bloodTransfusionRepository,
+        IReportRepository reportRepository
+    ) : IUnitOfWork
     {
         private readonly SQLServerContext _sqlServerContext = sqlServerContext;
         private readonly IDonorRepository _donorRepository = donorRepository;
@@ -28,6 +30,7 @@ namespace DoaMais.Infrastructure.Persistence
         private readonly IDonationRepository _donationRepository = donationRepository;
         private readonly IHospitalRepository _hospitalRepository = hospitalRepository;
         private readonly IBloodTransfusionRepository _bloodTransfusionRepository = bloodTransfusionRepository;
+        private readonly IReportRepository _reportRepository = reportRepository;
         private IDbContextTransaction? _transaction;
 
         public IDonorRepository Donors => _donorRepository;
@@ -36,6 +39,7 @@ namespace DoaMais.Infrastructure.Persistence
         public IDonationRepository Donation => _donationRepository;
         public IHospitalRepository Hospital => _hospitalRepository;
         public IBloodTransfusionRepository BloodTransfusion => _bloodTransfusionRepository;
+        public IReportRepository Report => _reportRepository;
 
         public async Task<int> CompleteAsync()
         {

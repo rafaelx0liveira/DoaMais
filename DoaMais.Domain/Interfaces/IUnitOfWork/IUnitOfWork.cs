@@ -4,6 +4,7 @@ using DoaMais.Domain.Interfaces.Repository.DonationRepository;
 using DoaMais.Domain.Interfaces.Repository.DonorRepository;
 using DoaMais.Domain.Interfaces.Repository.EmployeeRepository;
 using DoaMais.Domain.Interfaces.Repository.HospitalRepository;
+using DoaMais.Domain.Interfaces.Repository.ReportRepository;
 
 namespace DoaMais.Domain.Interfaces.IUnitOfWork
 {
@@ -15,6 +16,7 @@ namespace DoaMais.Domain.Interfaces.IUnitOfWork
         IDonationRepository Donation { get; }
         IHospitalRepository Hospital { get; }
         IBloodTransfusionRepository BloodTransfusion { get; }
+        IReportRepository Report { get; }
 
         Task<int> CompleteAsync();
         Task BeginTransactionAsync();

@@ -14,6 +14,7 @@ namespace DoaMais.Infrastructure.Context
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Hospital> Hospitals { get; set; }
         public DbSet<BloodTransfusion> BloodTransfusions { get; set; }
+        public DbSet<Report> Reports { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Relacionamento 1:N Address -> Donor
@@ -60,6 +61,13 @@ namespace DoaMais.Infrastructure.Context
                 .IsUnique();
 
             // Configuração de Enum para string
+            modelBuilder.Entity<Report>()
+                .Property(bs => bs.ReportType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (ReportType)Enum.Parse(typeof(ReportType), v)
+                );
+
             modelBuilder.Entity<Donor>()
                 .Property(d => d.BloodType)
                 .HasConversion(
