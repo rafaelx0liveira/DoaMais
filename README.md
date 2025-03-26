@@ -1,85 +1,82 @@
-# DoaMais - Sistema de Gerenciamento de Doação de Sangue
+# DoaMais - Blood Donation Management System
 
-DoaMais é um sistema desenvolvido para gerenciar doações de sangue, controle de estoque e notificações para hospitais e doadores. A solução utiliza arquitetura de microsserviços com RabbitMQ, implementa CQRS para comandos e consultas, e adota boas práticas como logs estruturados com Serilog e armazenamento no Elasticsearch.
+**DoaMais** is a system developed to manage blood donations, stock control, and notifications for hospitals and donors. The solution uses a microservices architecture with RabbitMQ, implements CQRS for commands and queries, and follows best practices such as structured logging with Serilog and storage in Elasticsearch.
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
-- **.NET 9** - Backend principal
-- **CQRS + MediatR** - Separacão de comandos e consultas
-- **RabbitMQ** - Mensageria para eventos assíncronos
-- **SQL Server** - Banco de dados principal
-- **Serilog + Elasticsearch** - Logging estruturado
-- **Docker** - Containeração de serviços
-- **JWT Authentication** - Autenticação segura
-- **Worker Services** - Para notificação de doadores e hospitais
-- **VaultService** - Para armazenamento seguro de segredos
-- **Swagger** - Documentação de API
+- **.NET 9** – Main backend
+- **CQRS + MediatR** – Separation of commands and queries
+- **RabbitMQ** – Messaging for asynchronous events
+- **SQL Server** – Primary database
+- **Serilog + Elasticsearch** – Structured logging
+- **Docker** – Containerization of services
+- **JWT Authentication** – Secure authentication
+- **Worker Services** – For donor and hospital notifications
+- **VaultService** – Secure storage of secrets
+- **Swagger** – API documentation
 
-## 🌟 Funcionalidades
+## 🌟 Features
 
-### 👥 Cadastro de Doadores
-- Registro de novos doadores.
-- Validação de idade, peso e requisitos mínimos.
-- Restrições para evitar cadastros duplicados.
+### 👥 Donor Registration
+- Register new donors.
+- Validation of age, weight, and minimum requirements.
+- Restrictions to prevent duplicate registrations.
 
-### 💉 Controle de Estoque de Sangue
-- Monitoramento de quantidades por tipo sanguíneo.
-- Notificação automática em caso de estoque baixo.
+### 💉 Blood Stock Control
+- Monitor quantities by blood type.
+- Automatic notification when stock is low.
 
-### 📊 Registro de Doações
-- Atualização automática do estoque após doações.
-- Controle de tempo entre doações para homens (60 dias) e mulheres (90 dias).
+### 📊 Donation Registration
+- Automatically updates stock after donations.
+- Enforces time intervals between donations for men (60 days) and women (90 days).
 
-### 🔎 Consulta de Doadores
-- Histórico de doações de cada doador.
-- Relatório de doações nos últimos 30 dias.
+### 🔎 Donor Search
+- Donation history for each donor.
+- Report of donations in the last 30 days.
 
-## 🔧 Microsserviços
+## 🔧 Microservices
 
-| Serviço | Função |
-|----------|----------|
-| **DoaMais.API** | API principal para cadastro, consultas e comandos |
-| **StockService** | Controle e monitoramento do estoque de sangue |
-| **LowStockAlertService** | Notifica administradores sobre estoque baixo |
-| **HospitalNotificationService** | Informa hospitais sobre disponibilidade de sangue |
-| **DonorNotificationService** | Notifica doadores sobre novas doações |
-| **ReportService** | Gera relatórios periódicos sobre doações e estoque |
-| **MessageBus (RabbitMQ)** | Orquestra eventos entre microsserviços |
+| Service | Function |
+|---------|----------|
+| **DoaMais.API** | Main API for registration, queries, and commands |
+| **StockService** | Manages and monitors blood stock |
+| **LowStockAlertService** | Notifies administrators about low stock |
+| **HospitalNotificationService** | Informs hospitals about blood availability |
+| **DonorNotificationService** | Notifies donors about new donation opportunities |
+| **ReportService** | Generates periodic reports on donations and stock |
+| **MessageBus (RabbitMQ)** | Orchestrates events between microservices |
 
-## 🔄 Arquitetura Orientada a Eventos (EDA)
+## 🔄 Event-Driven Architecture (EDA)
 
-O **DoaMais** segue um modelo de **Arquitetura Orientada a Eventos (EDA - Event-Driven Architecture)**, pois os eventos são o principal mecanismo de comunicação entre os serviços. Isso garante **desacoplamento, escalabilidade e processamento assíncrono**. 
+**DoaMais** follows an **Event-Driven Architecture (EDA)** model, where events are the main communication mechanism between services. This ensures **loose coupling, scalability, and asynchronous processing**.
 
-- A API **publica eventos** no **RabbitMQ** (exemplo: doação registrada, alerta de estoque baixo).
-- Os **Worker Services** **consomem e processam esses eventos**, gerando novas ações automaticamente.
-- Isso permite um **processamento assíncrono**, tornando o sistema mais eficiente e resiliente.
+- The **API publishes events** to **RabbitMQ** (e.g., donation registered, low stock alert).
+- **Worker Services consume and process these events**, triggering new actions automatically.
+- This enables **asynchronous processing**, making the system more efficient and resilient.
 
-## 🛡️ Regras de Negócio
-- **Não permitir cadastro duplicado de doadores pelo e-mail.**
-- **Menores de idade podem ser cadastrados, mas não podem doar.**
-- **Peso mínimo de 50KG para ser elegível como doador.**
-- **Intervalo mínimo entre doações:**
-  - Homens: 60 dias
-  - Mulheres: 90 dias
-- **Volume de sangue permitido por doação: 420ml - 470ml.**
+## 🛡️ Business Rules
+- **Duplicate donor registration by email is not allowed.**
+- **Minors can be registered but cannot donate.**
+- **Minimum weight of 50KG required to be eligible as a donor.**
+- **Minimum interval between donations:**
+  - Men: 60 days  
+  - Women: 90 days
+- **Allowed blood volume per donation: 420ml – 470ml.**
 
-## 🔍 Endpoints Principais
+## 🔍 Key Endpoints
 
-### **Doadores**
-- `POST /api/donor` - Cadastrar doador
-- `GET /api/donor/{id}` - Consultar doador por ID
-- `GET /api/donor/getAll` - Listar todos os doadores
+### **Donors**
+- `POST /api/donor` – Register donor
+- `GET /api/donor/{id}` – Get donor by ID
+- `GET /api/donor/getAll` – List all donors
 
-### **Doações**
-- `POST /api/donation` - Registrar nova doação
-- `GET /api/donation?donorId={id}` - Consultar última doação de um doador
+### **Donations**
+- `POST /api/donation` – Register new donation
+- `GET /api/donation?donorId={id}` – Get last donation from a donor
 
-### **Estoque de Sangue**
-- `GET /api/stock` - Consultar estoque atual
+### **Blood Stock**
+- `GET /api/stock` – Get current stock
 
-## 🎯 Próximos Passos
-- [ ] Criar interface web para interação com a API
-- [ ] Melhorar testes automatizados
-
----
-
+## 🎯 Next Steps
+- [ ] Create a web interface to interact with the API  
+- [ ] Improve automated testing
